@@ -2,12 +2,11 @@ import React from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 
 interface RadarMetrics {
-  fluency: number;      // Fluência
-  accuracy: number;     // Precisão
-  pacing: number;       // Ritmo
-  expression: number;   // Expressão
-  pronunciation: number;// Pronúncia
-  comprehension?: number; // Compreensão (Opcional para compatibilidade)
+  fluency: number;
+  accuracy: number;
+  pacing: number;
+  expression: number;
+  pronunciation: number;
 }
 
 interface CognitiveRadarChartProps {
@@ -28,7 +27,6 @@ const CognitiveRadarChart: React.FC<CognitiveRadarChartProps> = ({
     { subject: 'RITMO', A: metrics.pacing, fullMark: 100 },
     { subject: 'EXPRESSÃO', A: metrics.expression, fullMark: 100 },
     { subject: 'PRONÚNCIA', A: metrics.pronunciation, fullMark: 100 },
-    { subject: 'COMPREENSÃO', A: metrics.comprehension || 0, fullMark: 100 },
   ];
 
   return (

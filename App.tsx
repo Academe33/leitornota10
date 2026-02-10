@@ -15,8 +15,6 @@ const STORAGE_KEY = 'academe_kids_v1_storage';
 const App: React.FC = () => {
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
   const [activeView, setActiveView] = useState<ActiveView>('STUDENT');
-  const [recordingStep, setRecordingStep] = useState<'READING' | 'EXPLAINING'>('READING');
-  const [readingAudioBlob, setReadingAudioBlob] = useState<Blob | null>(null);
   const [records, setRecords] = useState<ReadingRecord[]>([]);
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
   const [studentName, setStudentName] = useState('André Silva');
@@ -37,19 +35,7 @@ const App: React.FC = () => {
   }, [records]);
 
   const handleRecordingComplete = async (blob: Blob) => {
-    if (recordingStep === 'READING') {
-      // Passo 1: Leitura concluída, armazena e vai para explicação
-      setReadingAudioBlob(blob);
-      setRecordingStep('EXPLAINING');
-      return;
-    }
-
-    // Passo 2: Explicação concluída, inicia processamento
     setStatus(AppStatus.FINISHED);
-    
-    // Reset para próxima vez
-    setRecordingStep('READING');
-    
     const recordId = Math.random().toString(36).substr(2, 9);
     const newRecord: ReadingRecord = {
       id: recordId,
@@ -60,37 +46,20 @@ const App: React.FC = () => {
     setRecords(prev => [newRecord, ...prev]);
 
     try {
-      const readingReader = new FileReader();
-      const comprehensionReader = new FileReader();
-      
-      // Promessas para ler os dois blobs
-      const readReadingAudio = new Promise<string>((resolve) => {
-        readingReader.readAsDataURL(readingAudioBlob!);
-        readingReader.onloadend = () => resolve((readingReader.result as string).split(',')[1]);
-      });
-
-      const readComprehensionAudio = new Promise<string>((resolve) => {
-        comprehensionReader.readAsDataURL(blob); // blob atual é o da explicação
-        comprehensionReader.onloadend = () => resolve((comprehensionReader.result as string).split(',')[1]);
-      });
-
-      const [readingBase64, comprehensionBase64] = await Promise.all([readReadingAudio, readComprehensionAudio]);
-      
-      const mimeType = blob.type || 'audio/webm';
-      
-      try {
-        const result = await analyzeReadingAudio(readingBase64, comprehensionBase64, mimeType, PRE_PROGRAMMED_STORY.content);
-        setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: 'completed', result } : r));
-      } catch (err) {
-        setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: 'error' } : r));
-      }
-      
-      // Limpa blob temporário
-      setReadingAudioBlob(null);
-
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        const base64Audio = (reader.result as string).split(',')[1];
+        const mimeType = blob.type || 'audio/webm';
+        try {
+          const result = await analyzeReadingAudio(base64Audio, mimeType, PRE_PROGRAMMED_STORY.content);
+          setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: 'completed', result } : r));
+        } catch (err) {
+          setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: 'error' } : r));
+        }
+      };
     } catch (err) {
       console.error(err);
-      setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: 'error' } : r));
     }
   };
 
@@ -110,7 +79,7 @@ const App: React.FC = () => {
         
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => { setActiveView(activeView === 'STUDENT' ? 'MANAGER' : 'STUDENT'); setSelectedRecordId(null); setStatus(AppStatus.IDLE); setRecordingStep('READING'); }}
+            onClick={() => { setActiveView(activeView === 'STUDENT' ? 'MANAGER' : 'STUDENT'); setSelectedRecordId(null); setStatus(AppStatus.IDLE); }}
             className="bg-white text-[#0EA5E9] px-8 py-3 rounded-2xl shadow-[0_6px_0_#BAE6FD] text-sm font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-slate-50 active:shadow-none active:translate-y-[6px] transition-all"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"/></svg>
@@ -156,27 +125,7 @@ const App: React.FC = () => {
                           placeholder="Nome do Aluno"
                         />
                       </div>
-                      
-                      <div className="flex flex-col items-center gap-4">
-                        {recordingStep === 'READING' ? (
-                          <div className="text-center animate-in fade-in duration-300">
-                             <span className="bg-blue-100 text-blue-600 px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">Passo 1 de 2</span>
-                             <h4 className="text-xl font-black text-slate-700 mb-2">Grave a Leitura</h4>
-                             <p className="text-sm text-slate-400 font-medium mb-6">Leia o texto ao lado em voz alta.</p>
-                          </div>
-                        ) : (
-                          <div className="text-center animate-in fade-in duration-300">
-                             <span className="bg-purple-100 text-purple-600 px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">Passo 2 de 2</span>
-                             <h4 className="text-xl font-black text-slate-700 mb-2">Explique o Texto</h4>
-                             <p className="text-sm text-slate-400 font-medium mb-6">Conte com suas palavras o que você entendeu.</p>
-                          </div>
-                        )}
-                        <AudioRecorder 
-                          onRecordingComplete={handleRecordingComplete} 
-                          isProcessing={false} 
-                          key={recordingStep} // Força recriar o componente para limpar estado interno
-                        />
-                      </div>
+                      <AudioRecorder onRecordingComplete={handleRecordingComplete} isProcessing={false} />
                     </div>
                   </div>
                 ) : (

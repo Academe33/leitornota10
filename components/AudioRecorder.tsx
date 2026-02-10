@@ -96,7 +96,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
       </div>
       
       <p className="text-slate-500 font-bold text-center mb-6 text-lg">
-        {isRecording ? "Gravando... 🎤" : "Clique para começar! 🚀"}
+        {isRecording ? "Gravando sua leitura... 🎤" : "Clique no botão para ler! 🚀"}
       </p>
 
       {isRecording && (

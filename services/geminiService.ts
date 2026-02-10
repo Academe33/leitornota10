@@ -11,8 +11,7 @@ const getAiClient = () => {
 };
 
 export const analyzeReadingAudio = async (
-  readingAudioBase64: string,
-  comprehensionAudioBase64: string,
+  audioBase64: string,
   mimeType: string,
   expectedText?: string
 ): Promise<AnalysisResult> => {
@@ -21,40 +20,33 @@ export const analyzeReadingAudio = async (
 
   const prompt = `
     Atue como um avaliador pedagógico rigoroso de leitura em português.
-    Você receberá DOIS áudios:
-    1. O primeiro áudio é a LEITURA do aluno do texto esperado abaixo.
-    2. O segundo áudio é a EXPLICAÇÃO (Interpretação) do aluno sobre o que ele entendeu do texto.
+    Analise esta gravação de áudio comparando com o texto esperado abaixo.
     
     ${expectedText ? `TEXTO ESPERADO: "${expectedText}"` : "Avalie a leitura de forma geral."}
     
     CRITÉRIOS DE AVALIAÇÃO RIGOROSOS:
     1. PRECISÃO (Accuracy) - FATOR CRÍTICO:
-       - Se o aluno leu apenas uma parte do texto (leitura incompleta), a nota de precisão deve ser proporcional à porcentagem do texto lido.
+       - Se o aluno leu apenas uma parte do texto (leitura incompleta), a nota de precisão deve ser proporcional à porcentagem do texto lido. (Ex: Leu apenas a primeira frase de um parágrafo = Precisão muito baixa).
        - Penalize cada palavra trocada, omitida ou inventada.
+       - Trocas que alteram o sentido (ex: "tanto" por "tentar") são erros graves.
     
-    2. COMPREENSÃO (Comprehension) - NOVA MÉTRICA:
-       - Analise o segundo áudio (Explicação).
-       - O aluno conseguiu captar a ideia principal do texto?
-       - Ele mencionou os personagens principais e o desfecho?
-       - A explicação faz sentido com o texto original?
-       - Nota 0 se não houver explicação ou for totalmente desconexa. Nota 100 para um resumo perfeito.
-
-    3. NOTA GERAL (Overall Score):
-       - A nota geral deve ser uma média ponderada entre a qualidade da leitura (60%) e a compreensão (40%).
-       - Leitura incompleta ainda penaliza gravemente a nota geral.
+    2. NOTA GERAL (Overall Score):
+       - A nota geral deve refletir o DESEMPENHO NA TAREFA COMPLETA.
+       - Se a leitura foi interrompida prematuramente ou abrange apenas uma pequena parte do texto, a nota geral DEVE SER BAIXA (abaixo de 50), independentemente da qualidade da voz ou dicção naquele pequeno trecho.
+       - NÃO dê notas altas (> 60) para leituras incompletas ou com muitos erros de precisão.
+       - A "boa voz" ou "boa dicção" não compensa o fato de não ter lido o texto corretamente.
 
     Forneça uma análise detalhada incluindo:
     1. Nota de Fluência (0-100)
     2. Nota de Pronúncia (0-100)
     3. Nota de Ritmo/Velocidade (0-100)
     4. Nota de Expressão/Entonação (0-100)
-    5. Nota de Precisão (0-100)
-    6. Nota de Compreensão (0-100) - Baseada no segundo áudio.
-    7. Transcrição exata da LEITURA (primeiro áudio).
-    8. Feedback qualitativo: Comente sobre a leitura E sobre a explicação do aluno.
-    9. Pontos fortes.
-    10. Áreas para melhoria.
-    11. Estimativa de WPM (apenas da leitura).
+    5. Nota de Precisão (0-100) - Seja impiedoso com leituras incompletas.
+    6. Transcrição exata do que foi ouvido.
+    7. Feedback qualitativo: Explique claramente por que a nota foi dada, mencionando explicitamente se a leitura foi incompleta.
+    8. Pontos fortes.
+    9. Áreas para melhoria.
+    10. Estimativa de WPM.
   `;
 
   try {
@@ -62,10 +54,7 @@ export const analyzeReadingAudio = async (
       model: model,
       contents: {
         parts: [
-          { text: "Áudio 1: Leitura do Texto" },
-          { inlineData: { data: readingAudioBase64, mimeType: mimeType } },
-          { text: "Áudio 2: Explicação/Interpretação" },
-          { inlineData: { data: comprehensionAudioBase64, mimeType: mimeType } },
+          { inlineData: { data: audioBase64, mimeType: mimeType } },
           { text: prompt }
         ]
       },
@@ -83,9 +72,8 @@ export const analyzeReadingAudio = async (
                 pacing: { type: Type.NUMBER },
                 expression: { type: Type.NUMBER },
                 accuracy: { type: Type.NUMBER },
-                comprehension: { type: Type.NUMBER },
               },
-              required: ["fluency", "pronunciation", "pacing", "expression", "accuracy", "comprehension"]
+              required: ["fluency", "pronunciation", "pacing", "expression", "accuracy"]
             },
             feedback: { type: Type.STRING },
             transcription: { type: Type.STRING },

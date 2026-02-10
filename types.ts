@@ -5,7 +5,6 @@ export interface ReadingMetrics {
   pacing: number;
   expression: number;
   accuracy: number;
-  comprehension: number;
 }
 
 export interface AnalysisResult {

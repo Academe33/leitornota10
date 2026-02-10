@@ -153,10 +153,6 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ data, history, on
                 <span className="block text-[9px] font-black text-[#22C55E] uppercase tracking-[0.2em] mb-2">Precisão</span>
                 <span className="block text-3xl font-black text-[#22C55E] leading-none">{data.metrics.accuracy}<small className="text-sm">%</small></span>
              </div>
-             <div className="bg-white p-6 rounded-[2.5rem] text-center border border-slate-50 shadow-sm col-span-2">
-                <span className="block text-[9px] font-black text-[#F43F5E] uppercase tracking-[0.2em] mb-2">Compreensão</span>
-                <span className="block text-3xl font-black text-[#F43F5E] leading-none">{data.metrics.comprehension || 0}<small className="text-sm">%</small></span>
-             </div>
           </div>
         </div>
 
