@@ -1,0 +1,7 @@
+{
+  "name": "Leitor Mestre - Analisador de Leitura",
+  "description": "Uma aplicação avançada que utiliza IA para analisar gravações de áudio de leitura em voz alta, fornecendo feedback detalhado sobre fluência, pronúncia, ritmo e entonação.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
