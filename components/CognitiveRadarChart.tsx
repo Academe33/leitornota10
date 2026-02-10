@@ -7,6 +7,7 @@ interface RadarMetrics {
   pacing: number;
   expression: number;
   pronunciation: number;
+  comprehension: number;
 }
 
 interface CognitiveRadarChartProps {
@@ -27,6 +28,7 @@ const CognitiveRadarChart: React.FC<CognitiveRadarChartProps> = ({
     { subject: 'RITMO', A: metrics.pacing, fullMark: 100 },
     { subject: 'EXPRESSÃO', A: metrics.expression, fullMark: 100 },
     { subject: 'PRONÚNCIA', A: metrics.pronunciation, fullMark: 100 },
+    { subject: 'COMPREENSÃO', A: metrics.comprehension, fullMark: 100 },
   ];
 
   return (

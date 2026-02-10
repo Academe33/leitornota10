@@ -13,50 +13,67 @@ const getAiClient = () => {
 export const analyzeReadingAudio = async (
   audioBase64: string,
   mimeType: string,
-  expectedText?: string
+  expectedText?: string,
+  interpretationAudioBase64?: string
 ): Promise<AnalysisResult> => {
   const ai = getAiClient();
   const model = 'gemini-3-pro-preview';
 
   const prompt = `
     Atue como um avaliador pedagógico rigoroso de leitura em português.
-    Analise esta gravação de áudio comparando com o texto esperado abaixo.
     
-    ${expectedText ? `TEXTO ESPERADO: "${expectedText}"` : "Avalie a leitura de forma geral."}
+    Você receberá um ou dois áudios:
+    1. O PRIMEIRO ÁUDIO é a leitura do texto pelo aluno.
+    2. O SEGUNDO ÁUDIO (se fornecido) é a explicação do aluno sobre o que ele entendeu do texto.
+
+    ${expectedText ? `TEXTO ESPERADO (para o primeiro áudio): "${expectedText}"` : "Avalie a leitura de forma geral."}
     
     CRITÉRIOS DE AVALIAÇÃO RIGOROSOS:
     1. PRECISÃO (Accuracy) - FATOR CRÍTICO:
-       - Se o aluno leu apenas uma parte do texto (leitura incompleta), a nota de precisão deve ser proporcional à porcentagem do texto lido. (Ex: Leu apenas a primeira frase de um parágrafo = Precisão muito baixa).
-       - Penalize cada palavra trocada, omitida ou inventada.
-       - Trocas que alteram o sentido (ex: "tanto" por "tentar") são erros graves.
+       - Se o aluno leu apenas uma parte do texto (leitura incompleta), a nota de precisão deve ser proporcional à porcentagem do texto lido.
+       - Penalize trocas, omissões ou invenções.
+
+    2. COMPREENSÃO (Comprehension) - NOVO CRITÉRIO:
+       - Analise o SEGUNDO ÁUDIO (explicação).
+       - O aluno conseguiu captar a ideia central do texto?
+       - Ele mencionou os personagens principais e o desfecho?
+       - Se não houver segundo áudio ou se for ininteligível, dê nota 0 em compreensão.
+       - Se a explicação for superficial ("fala de um leão"), nota baixa (30-50).
+       - Se for detalhada e correta (ex: "O leão soltou o rato e depois o rato salvou o leão roendo a corda"), nota alta (80-100).
     
-    2. NOTA GERAL (Overall Score):
-       - A nota geral deve refletir o DESEMPENHO NA TAREFA COMPLETA.
-       - Se a leitura foi interrompida prematuramente ou abrange apenas uma pequena parte do texto, a nota geral DEVE SER BAIXA (abaixo de 50), independentemente da qualidade da voz ou dicção naquele pequeno trecho.
-       - NÃO dê notas altas (> 60) para leituras incompletas ou com muitos erros de precisão.
-       - A "boa voz" ou "boa dicção" não compensa o fato de não ter lido o texto corretamente.
+    3. NOTA GERAL (Overall Score):
+       - Considere a leitura (peso 70%) e a compreensão (peso 30%).
+       - Leitura incompleta ainda penaliza muito a nota geral.
 
     Forneça uma análise detalhada incluindo:
     1. Nota de Fluência (0-100)
     2. Nota de Pronúncia (0-100)
     3. Nota de Ritmo/Velocidade (0-100)
     4. Nota de Expressão/Entonação (0-100)
-    5. Nota de Precisão (0-100) - Seja impiedoso com leituras incompletas.
-    6. Transcrição exata do que foi ouvido.
-    7. Feedback qualitativo: Explique claramente por que a nota foi dada, mencionando explicitamente se a leitura foi incompleta.
-    8. Pontos fortes.
-    9. Áreas para melhoria.
-    10. Estimativa de WPM.
+    5. Nota de Precisão (0-100)
+    6. Nota de Compreensão (0-100) - Baseada na explicação.
+    7. Transcrição exata da LEITURA (primeiro áudio).
+    8. Feedback qualitativo: Comente sobre a leitura e sobre a capacidade de interpretação demonstrada.
+    9. Pontos fortes.
+    10. Áreas para melhoria.
+    11. Estimativa de WPM (da leitura).
   `;
+
+  const parts: any[] = [
+    { inlineData: { data: audioBase64, mimeType: mimeType } }
+  ];
+
+  if (interpretationAudioBase64) {
+    parts.push({ inlineData: { data: interpretationAudioBase64, mimeType: mimeType } });
+  }
+
+  parts.push({ text: prompt });
 
   try {
     const response = await ai.models.generateContent({
       model: model,
       contents: {
-        parts: [
-          { inlineData: { data: audioBase64, mimeType: mimeType } },
-          { text: prompt }
-        ]
+        parts: parts
       },
       config: {
         responseMimeType: "application/json",
@@ -72,8 +89,9 @@ export const analyzeReadingAudio = async (
                 pacing: { type: Type.NUMBER },
                 expression: { type: Type.NUMBER },
                 accuracy: { type: Type.NUMBER },
+                comprehension: { type: Type.NUMBER },
               },
-              required: ["fluency", "pronunciation", "pacing", "expression", "accuracy"]
+              required: ["fluency", "pronunciation", "pacing", "expression", "accuracy", "comprehension"]
             },
             feedback: { type: Type.STRING },
             transcription: { type: Type.STRING },
