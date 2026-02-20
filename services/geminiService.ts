@@ -69,47 +69,74 @@ export const analyzeReadingAudio = async (
 
   parts.push({ text: prompt });
 
-  try {
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: {
-        parts: parts
-      },
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            overallScore: { type: Type.NUMBER },
-            metrics: {
-              type: Type.OBJECT,
-              properties: {
-                fluency: { type: Type.NUMBER },
-                pronunciation: { type: Type.NUMBER },
-                pacing: { type: Type.NUMBER },
-                expression: { type: Type.NUMBER },
-                accuracy: { type: Type.NUMBER },
-                comprehension: { type: Type.NUMBER },
-              },
-              required: ["fluency", "pronunciation", "pacing", "expression", "accuracy", "comprehension"]
-            },
-            feedback: { type: Type.STRING },
-            transcription: { type: Type.STRING },
-            strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
-            areasForImprovement: { type: Type.ARRAY, items: { type: Type.STRING } },
-            estimatedWPM: { type: Type.NUMBER },
-          },
-          required: ["overallScore", "metrics", "feedback", "transcription", "strengths", "areasForImprovement", "estimatedWPM"]
-        }
-      }
-    });
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY_MS = 2000; // 2 segundos entre tentativas
+  const TIMEOUT_MS = 25000; // 25 segundos por tentativa
 
-    const resultText = response.text;
-    if (!resultText) throw new Error("Não foi possível obter resposta da IA");
-    
-    return JSON.parse(resultText) as AnalysisResult;
-  } catch (error) {
-    console.error("Gemini Analysis Error:", error);
-    throw error;
+  let lastError: any;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      console.log(`Tentativa de análise ${attempt}/${MAX_RETRIES}...`);
+      
+      const generateContentPromise = ai.models.generateContent({
+        model: model,
+        contents: {
+          parts: parts
+        },
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              overallScore: { type: Type.NUMBER },
+              metrics: {
+                type: Type.OBJECT,
+                properties: {
+                  fluency: { type: Type.NUMBER },
+                  pronunciation: { type: Type.NUMBER },
+                  pacing: { type: Type.NUMBER },
+                  expression: { type: Type.NUMBER },
+                  accuracy: { type: Type.NUMBER },
+                  comprehension: { type: Type.NUMBER },
+                },
+                required: ["fluency", "pronunciation", "pacing", "expression", "accuracy", "comprehension"]
+              },
+              feedback: { type: Type.STRING },
+              transcription: { type: Type.STRING },
+              strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
+              areasForImprovement: { type: Type.ARRAY, items: { type: Type.STRING } },
+              estimatedWPM: { type: Type.NUMBER },
+            },
+            required: ["overallScore", "metrics", "feedback", "transcription", "strengths", "areasForImprovement", "estimatedWPM"]
+          }
+        }
+      });
+
+      // Timeout por tentativa
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error(`Timeout na tentativa ${attempt}: A análise demorou muito tempo.`)), TIMEOUT_MS)
+      );
+
+      const response = await Promise.race([generateContentPromise, timeoutPromise]) as any;
+
+      const resultText = response.text;
+      if (!resultText) throw new Error("Não foi possível obter resposta da IA (texto vazio)");
+      
+      return JSON.parse(resultText) as AnalysisResult;
+
+    } catch (error) {
+      console.error(`Erro na tentativa ${attempt}/${MAX_RETRIES}:`, error);
+      lastError = error;
+      
+      if (attempt < MAX_RETRIES) {
+        // Espera um pouco antes de tentar novamente
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+      }
+    }
   }
+
+  // Se chegou aqui, falhou todas as tentativas
+  console.error("Todas as tentativas de análise falharam.");
+  throw lastError || new Error("Falha ao analisar áudio após múltiplas tentativas.");
 };

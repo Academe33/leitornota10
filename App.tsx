@@ -66,21 +66,33 @@ const App: React.FC = () => {
       // Promessa para ler o primeiro áudio (Leitura)
       const readReadingAudio = new Promise<string>((resolve, reject) => {
         if (!readingBlob) {
-          reject("Áudio da leitura não encontrado");
+          reject(new Error("Áudio da leitura não encontrado"));
           return;
         }
         const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            resolve(reader.result.split(',')[1]);
+          } else {
+            reject(new Error("Falha ao ler áudio de leitura: formato inválido"));
+          }
+        };
+        reader.onerror = () => reject(reader.error || new Error("Erro na leitura do arquivo de leitura"));
         reader.readAsDataURL(readingBlob);
-        reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-        reader.onerror = reject;
       });
 
       // Promessa para ler o segundo áudio (Interpretação)
       const readInterpretationAudio = new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            resolve(reader.result.split(',')[1]);
+          } else {
+            reject(new Error("Falha ao ler áudio de interpretação: formato inválido"));
+          }
+        };
+        reader.onerror = () => reject(reader.error || new Error("Erro na leitura do arquivo de interpretação"));
         reader.readAsDataURL(blob); // 'blob' aqui é o da interpretação
-        reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-        reader.onerror = reject;
       });
 
       const [readingBase64, interpretationBase64] = await Promise.all([readReadingAudio, readInterpretationAudio]);
@@ -95,7 +107,9 @@ const App: React.FC = () => {
         );
         setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: 'completed', result } : r));
       } catch (err) {
+        console.error("Erro final após tentativas:", err);
         setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: 'error' } : r));
+        alert("Ops! Ocorreu um erro ao processar sua leitura após várias tentativas. Por favor, tente gravar novamente.");
       }
       
       // Resetar estados
@@ -105,6 +119,7 @@ const App: React.FC = () => {
     } catch (err) {
       console.error(err);
       setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: 'error' } : r));
+      alert("Erro ao preparar os áudios. Por favor, tente novamente.");
     }
   };
 
