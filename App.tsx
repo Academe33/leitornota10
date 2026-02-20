@@ -4,6 +4,7 @@ import { analyzeReadingAudio } from './services/geminiService';
 import AudioRecorder from './components/AudioRecorder';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import HistoryList from './components/HistoryList';
+import Logo from './assets/logo.png';
 
 const PRE_PROGRAMMED_STORY = {
   title: "O Leão e o Ratinho",
@@ -114,12 +115,12 @@ const App: React.FC = () => {
     : [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#BAE6FD] bg-opacity-40 font-sans pb-10">
+    <div className="min-h-screen flex flex-col bg-[#DDD6FE] bg-opacity-40 font-sans pb-10">
       {/* Header Estilo Academe Kids */}
       <header className="px-6 py-6 flex justify-between items-center max-w-7xl mx-auto w-full">
-        <div className="bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-2">
-          <span className="text-[#0EA5E9] font-black text-xl italic">Academe</span>
-          <span className="bg-[#FB7185] text-white px-3 py-0.5 rounded-full text-sm font-bold">Kids</span>
+        <div className="bg-white px-6 py-3 rounded-full shadow-sm flex items-center gap-3">
+          <img src={Logo} alt="Academe" className="h-6 object-contain" />
+          <span className="bg-[#8B5CF6] text-white px-3 py-0.5 rounded-full text-sm font-bold">Kids</span>
         </div>
         
         <div className="flex items-center gap-4">
@@ -131,7 +132,7 @@ const App: React.FC = () => {
               setRecordingStep('READING');
               setReadingBlob(null);
             }}
-            className="bg-white text-[#0EA5E9] px-8 py-3 rounded-2xl shadow-[0_6px_0_#BAE6FD] text-sm font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-slate-50 active:shadow-none active:translate-y-[6px] transition-all"
+            className="bg-white text-[#8B5CF6] px-8 py-3 rounded-2xl shadow-[0_6px_0_#DDD6FE] text-sm font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-slate-50 active:shadow-none active:translate-y-[6px] transition-all"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"/></svg>
             {activeView === 'STUDENT' ? 'Painel Gestor' : 'Área do Aluno'}
@@ -157,7 +158,7 @@ const App: React.FC = () => {
               <div className="space-y-8 animate-in fade-in duration-700">
                 {status === AppStatus.IDLE ? (
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-8 bg-white p-12 md:p-20 rounded-[4rem] shadow-xl shadow-sky-900/5 relative overflow-hidden border border-white">
+                    <div className="lg:col-span-8 bg-white p-12 md:p-20 rounded-[4rem] shadow-xl shadow-violet-900/5 relative overflow-hidden border border-white">
 
                       <h3 className="text-3xl font-black text-[#1E293B] mb-8">
                         {recordingStep === 'READING' ? PRE_PROGRAMMED_STORY.title : "Agora, explique o que você entendeu:"}
@@ -169,12 +170,12 @@ const App: React.FC = () => {
                         </p>
                       ) : (
                         <div className="space-y-6 animate-in slide-in-from-right duration-500">
-                           <div className="bg-sky-50 p-8 rounded-3xl border-2 border-sky-100">
+                           <div className="bg-violet-50 p-8 rounded-3xl border-2 border-violet-100">
                               <p className="text-xl text-slate-600 font-medium leading-relaxed">
                                 Muito bem! Agora, clique no microfone novamente e conte com suas próprias palavras:
                                 <br/><br/>
-                                <span className="font-bold text-sky-600">1. Quem são os personagens?</span><br/>
-                                <span className="font-bold text-sky-600">2. O que aconteceu na história?</span>
+                                <span className="font-bold text-violet-600">1. Quem são os personagens?</span><br/>
+                                <span className="font-bold text-violet-600">2. O que aconteceu na história?</span>
                               </p>
                            </div>
                            <p className="text-slate-400 text-sm font-bold text-center uppercase tracking-widest">Grave sua explicação</p>
@@ -183,14 +184,14 @@ const App: React.FC = () => {
                     </div>
 
                     <div className="lg:col-span-4 space-y-6">
-                      <div className="bg-white p-8 rounded-[3rem] shadow-xl shadow-sky-900/5 border border-white flex flex-col gap-6">
-                        <h4 className="text-[#0EA5E9] font-black uppercase tracking-widest text-xs">Identificação</h4>
+                      <div className="bg-white p-8 rounded-[3rem] shadow-xl shadow-violet-900/5 border border-white flex flex-col gap-6">
+                        <h4 className="text-[#8B5CF6] font-black uppercase tracking-widest text-xs">Identificação</h4>
                         <input 
                           type="text" 
                           value={studentName}
                           onChange={(e) => setStudentName(e.target.value)}
                           disabled={recordingStep === 'INTERPRETATION'}
-                          className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 font-bold text-slate-800 focus:border-[#0EA5E9] outline-none transition-all disabled:opacity-50"
+                          className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 font-bold text-slate-800 focus:border-[#8B5CF6] outline-none transition-all disabled:opacity-50"
                           placeholder="Nome do Aluno"
                         />
                       </div>
