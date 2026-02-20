@@ -69,47 +69,58 @@ export const analyzeReadingAudio = async (
 
   parts.push({ text: prompt });
 
-  try {
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: {
-        parts: parts
-      },
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            overallScore: { type: Type.NUMBER },
-            metrics: {
-              type: Type.OBJECT,
-              properties: {
-                fluency: { type: Type.NUMBER },
-                pronunciation: { type: Type.NUMBER },
-                pacing: { type: Type.NUMBER },
-                expression: { type: Type.NUMBER },
-                accuracy: { type: Type.NUMBER },
-                comprehension: { type: Type.NUMBER },
-              },
-              required: ["fluency", "pronunciation", "pacing", "expression", "accuracy", "comprehension"]
-            },
-            feedback: { type: Type.STRING },
-            transcription: { type: Type.STRING },
-            strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
-            areasForImprovement: { type: Type.ARRAY, items: { type: Type.STRING } },
-            estimatedWPM: { type: Type.NUMBER },
-          },
-          required: ["overallScore", "metrics", "feedback", "transcription", "strengths", "areasForImprovement", "estimatedWPM"]
-        }
-      }
-    });
+  const MAX_RETRIES = 3;
+  let lastError: any;
 
-    const resultText = response.text;
-    if (!resultText) throw new Error("Não foi possível obter resposta da IA");
-    
-    return JSON.parse(resultText) as AnalysisResult;
-  } catch (error) {
-    console.error("Gemini Analysis Error:", error);
-    throw error;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await ai.models.generateContent({
+        model: model,
+        contents: {
+          parts: parts
+        },
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              overallScore: { type: Type.NUMBER },
+              metrics: {
+                type: Type.OBJECT,
+                properties: {
+                  fluency: { type: Type.NUMBER },
+                  pronunciation: { type: Type.NUMBER },
+                  pacing: { type: Type.NUMBER },
+                  expression: { type: Type.NUMBER },
+                  accuracy: { type: Type.NUMBER },
+                  comprehension: { type: Type.NUMBER },
+                },
+                required: ["fluency", "pronunciation", "pacing", "expression", "accuracy", "comprehension"]
+              },
+              feedback: { type: Type.STRING },
+              transcription: { type: Type.STRING },
+              strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
+              areasForImprovement: { type: Type.ARRAY, items: { type: Type.STRING } },
+              estimatedWPM: { type: Type.NUMBER },
+            },
+            required: ["overallScore", "metrics", "feedback", "transcription", "strengths", "areasForImprovement", "estimatedWPM"]
+          }
+        }
+      });
+
+      const resultText = response.text;
+      if (!resultText) throw new Error("Não foi possível obter resposta da IA");
+      
+      return JSON.parse(resultText) as AnalysisResult;
+
+    } catch (error) {
+      console.error(`Gemini Analysis Error (Attempt ${attempt + 1}/${MAX_RETRIES + 1}):`, error);
+      lastError = error;
+      if (attempt < MAX_RETRIES) {
+        const delay = Math.pow(2, attempt) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   }
+  throw lastError;
 };
