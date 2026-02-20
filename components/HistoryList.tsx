@@ -60,14 +60,14 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
       {/* Cabeçalho do Painel */}
       <div className="bg-white rounded-[3.5rem] p-8 md:p-12 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-white flex flex-col md:flex-row md:items-center justify-between gap-8">
         <div>
-          <h2 className="text-4xl font-black text-[#0EA5E9] tracking-tight">Painel do Professor</h2>
+          <h2 className="text-4xl font-black text-[#8B5CF6] tracking-tight">Painel do Professor</h2>
           <p className="text-slate-400 font-bold mt-2">Acompanhe a jornada mágica de leitura dos seus alunos.</p>
         </div>
         
         <div className="flex items-center gap-6">
-          <div className="bg-[#F0F9FF] px-10 py-5 rounded-[2.5rem] border border-[#BAE6FD] text-center min-w-[180px]">
-             <span className="block text-[10px] font-black text-[#BAE6FD] uppercase tracking-[0.2em] mb-1">Leituras Realizadas</span>
-             <span className="block text-3xl font-black text-[#0EA5E9] leading-none">{records.length}</span>
+          <div className="bg-[#F5F3FF] px-10 py-5 rounded-[2.5rem] border border-[#DDD6FE] text-center min-w-[180px]">
+             <span className="block text-[10px] font-black text-[#DDD6FE] uppercase tracking-[0.2em] mb-1">Leituras Realizadas</span>
+             <span className="block text-3xl font-black text-[#8B5CF6] leading-none">{records.length}</span>
           </div>
           {records.length > 0 && (
             <button 
@@ -82,8 +82,8 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
 
       {/* Lista de Alunos */}
       {uniqueRecords.length === 0 ? (
-        <div className="bg-white rounded-[4rem] border-4 border-dashed border-sky-100 py-32 flex flex-col items-center justify-center text-center space-y-6">
-          <div className="w-24 h-24 bg-sky-50 rounded-full flex items-center justify-center border-4 border-white shadow-sm text-[#0EA5E9]">
+        <div className="bg-white rounded-[4rem] border-4 border-dashed border-violet-100 py-32 flex flex-col items-center justify-center text-center space-y-6">
+          <div className="w-24 h-24 bg-violet-50 rounded-full flex items-center justify-center border-4 border-white shadow-sm text-[#8B5CF6]">
              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
           </div>
           <p className="text-2xl font-black text-slate-800 tracking-tight">Ainda não há nenhuma leitura para avaliar... ✨</p>
@@ -136,7 +136,7 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
                   <button 
                     onClick={() => onSelect(record.id)}
                     disabled={record.status !== 'completed'}
-                    className="w-full md:w-auto px-8 py-4 bg-[#0EA5E9] text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-[0_6px_0_#0284C7] hover:bg-[#0284C7] active:shadow-none active:translate-y-[6px] transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
+                    className="w-full md:w-auto px-8 py-4 bg-[#8B5CF6] text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-[0_6px_0_#7C3AED] hover:bg-[#7C3AED] active:shadow-none active:translate-y-[6px] transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
                   >
                     Ver Relatório
                   </button>
