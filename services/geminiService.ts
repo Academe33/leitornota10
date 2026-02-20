@@ -71,13 +71,15 @@ export const analyzeReadingAudio = async (
 
   const MAX_RETRIES = 3;
   const RETRY_DELAY_MS = 2000; // 2 segundos entre tentativas
-  const TIMEOUT_MS = 25000; // 25 segundos por tentativa
-
+  
   let lastError: any;
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    // Timeout dinâmico: Começa curto (12s) e aumenta se falhar
+    const currentTimeoutMs = attempt === 1 ? 12000 : (attempt === 2 ? 18000 : 25000);
+
     try {
-      console.log(`Tentativa de análise ${attempt}/${MAX_RETRIES}...`);
+      console.log(`Tentativa de análise ${attempt}/${MAX_RETRIES} (Timeout: ${currentTimeoutMs}ms)...`);
       
       const generateContentPromise = ai.models.generateContent({
         model: model,
@@ -115,7 +117,7 @@ export const analyzeReadingAudio = async (
 
       // Timeout por tentativa
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error(`Timeout na tentativa ${attempt}: A análise demorou muito tempo.`)), TIMEOUT_MS)
+        setTimeout(() => reject(new Error(`Timeout na tentativa ${attempt} (${currentTimeoutMs}ms): A análise demorou muito tempo.`)), currentTimeoutMs)
       );
 
       const response = await Promise.race([generateContentPromise, timeoutPromise]) as any;
