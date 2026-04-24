@@ -8,6 +8,7 @@ interface AnalysisDashboardProps {
   history: ReadingRecord[];
   onReset: () => void;
   record: ReadingRecord;
+  hideBackButton?: boolean;
 }
 
 const METRIC_LABELS: Array<{ key: keyof AnalysisResult['metrics']; label: string }> = [
@@ -21,7 +22,7 @@ const METRIC_LABELS: Array<{ key: keyof AnalysisResult['metrics']; label: string
 
 const SHORT_MONTHS = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
 
-const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ data, history, onReset, record }) => {
+const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ data, history, onReset, record, hideBackButton }) => {
   const allReadings = [...history, record]
     .filter((r) => r.status === 'completed' && r.result)
     .sort((a, b) => a.timestamp - b.timestamp);
@@ -50,16 +51,18 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ data, history, on
           </h1>
           <p className="text-slate-400 font-bold mt-1">Acompanhe seu progresso de leitura</p>
         </div>
-        <button
-          type="button"
-          onClick={onReset}
-          className="bg-violet-50 text-[#8B5CF6] px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-violet-100 transition-all self-start md:self-auto"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
-          </svg>
-          Área do Aluno
-        </button>
+        {!hideBackButton && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="bg-violet-50 text-[#8B5CF6] px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-violet-100 transition-all self-start md:self-auto"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+            </svg>
+            Área do Aluno
+          </button>
+        )}
       </div>
 
       {/* LINHA 1: Nota Global (1/3) + Curva de Evolução (2/3) */}

@@ -33,4 +33,4 @@ export enum AppStatus {
   ERROR = 'ERROR'
 }
 
-export type ActiveView = 'STUDENT' | 'MANAGER';
+export type ActiveView = 'STUDENT' | 'MANAGER' | 'TEST';
