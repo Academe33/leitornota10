@@ -406,8 +406,11 @@ const App: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-start">
-                      <div className="lg:col-span-8 bg-white p-5 sm:p-10 md:p-16 lg:p-20 rounded-3xl sm:rounded-[3rem] lg:rounded-[4rem] shadow-xl shadow-violet-900/5 relative overflow-hidden border border-white flex flex-col h-[48vh] lg:h-[52vh]">
+                    <div
+                      className="flex flex-col lg:grid lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 lg:items-start h-[calc(100dvh-7rem)] sm:h-[calc(100dvh-8rem)] lg:h-auto"
+                      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+                    >
+                      <div className="lg:col-span-8 bg-white p-4 sm:p-8 md:p-14 lg:p-16 rounded-2xl sm:rounded-[3rem] lg:rounded-[4rem] shadow-xl shadow-violet-900/5 relative overflow-hidden border border-white flex flex-col flex-1 min-h-0 lg:h-[75vh]">
                         
                         {!isStandalone && (
                           <button 
@@ -496,7 +499,7 @@ const App: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="lg:col-span-4 space-y-4 sm:space-y-6 lg:sticky lg:top-6">
+                      <div className="lg:col-span-4 shrink-0 w-full lg:sticky lg:top-6 flex justify-center items-end">
                         <AudioRecorder 
                           key={recordingStep}
                           onRecordingComplete={handleRecordingComplete} 
