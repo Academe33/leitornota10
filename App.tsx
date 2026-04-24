@@ -306,15 +306,6 @@ const App: React.FC = () => {
           </header>
         )}
 
-        {isStandalone && hasStarted && (
-          <header className="px-6 py-4 flex justify-center items-center border-b border-slate-100 bg-white">
-            <div className="bg-slate-50 px-5 py-2.5 rounded-full flex items-center gap-3">
-              <img src={Logo} alt="Academe" className="h-5 object-contain opacity-50" />
-              <span className="text-slate-400 text-xs font-black tracking-widest uppercase">Modo Foco</span>
-            </div>
-          </header>
-        )}
-
         <main className={`flex-grow w-full relative ${isStandalone ? 'p-3 sm:p-6' : 'p-6 md:p-10'}`}>
         {isStandalone && !hasStarted && selectedStory ? (
           <div className="fixed inset-0 z-40 bg-gradient-to-br from-[#8B5CF6] via-[#7C3AED] to-[#6366F1] flex items-center justify-center p-6 animate-in fade-in duration-500">

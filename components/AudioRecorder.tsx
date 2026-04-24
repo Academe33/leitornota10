@@ -182,7 +182,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
             transition-all duration-200 transform active:translate-y-2 active:shadow-none
             ${isRecording 
               ? 'bg-red-500 shadow-[0_6px_0_rgb(185,28,28)] lg:shadow-[0_8px_0_rgb(185,28,28)] hover:bg-red-400' 
-              : 'bg-indigo-500 shadow-[0_6px_0_rgb(55,48,163)] lg:shadow-[0_8px_0_rgb(55,48,163)] hover:bg-indigo-400'
+              : 'bg-[#8B5CF6] shadow-[0_6px_0_#6D28D9] lg:shadow-[0_8px_0_#6D28D9] hover:bg-[#7C3AED]'
             }
             ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
           `}
