@@ -3,20 +3,101 @@ import React, { useState, useRef, useEffect } from 'react';
 interface AudioRecorderProps {
   onRecordingComplete: (blob: Blob) => void;
   isProcessing: boolean;
+  onTranscriptUpdate?: (transcript: string) => void;
+  onRecordingStart?: () => void;
 }
 
-const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isProcessing }) => {
+type SRResult = {
+  isFinal: boolean;
+  0: { transcript: string };
+};
+type SREvent = { resultIndex: number; results: ArrayLike<SRResult> };
+type SRInstance = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((e: SREvent) => void) | null;
+  onerror: ((e: unknown) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+};
+
+const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isProcessing, onTranscriptUpdate, onRecordingStart }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<SRInstance | null>(null);
+  const finalTranscriptRef = useRef<string>('');
+  const wantTranscribeRef = useRef<boolean>(false);
 
   useEffect(() => {
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch { /* ignore */ }
+      }
     };
   }, []);
+
+  const startSpeechRecognition = () => {
+    if (!onTranscriptUpdate) return;
+    const w = window as unknown as {
+      SpeechRecognition?: new () => SRInstance;
+      webkitSpeechRecognition?: new () => SRInstance;
+    };
+    const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
+    if (!SR) {
+      console.warn('SpeechRecognition não suportado neste navegador.');
+      return;
+    }
+    const recognition = new SR();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    finalTranscriptRef.current = '';
+    wantTranscribeRef.current = true;
+
+    recognition.onresult = (event: SREvent) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const res = event.results[i];
+        if (res.isFinal) {
+          finalTranscriptRef.current += ' ' + res[0].transcript;
+        } else {
+          interim += ' ' + res[0].transcript;
+        }
+      }
+      const full = (finalTranscriptRef.current + ' ' + interim).trim();
+      onTranscriptUpdate?.(full);
+    };
+
+    recognition.onerror = () => { /* silencioso */ };
+
+    recognition.onend = () => {
+      if (wantTranscribeRef.current) {
+        try { recognition.start(); } catch { /* ignore */ }
+      }
+    };
+
+    try {
+      recognition.start();
+      recognitionRef.current = recognition;
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const stopSpeechRecognition = () => {
+    wantTranscribeRef.current = false;
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch { /* ignore */ }
+      recognitionRef.current = null;
+    }
+  };
 
   const startRecording = async () => {
     try {
@@ -87,13 +168,14 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-white rounded-3xl shadow-xl border border-slate-100 transition-all hover:shadow-2xl max-w-md w-full mx-auto">
-      <div className="relative mb-6 group">
+    <div className="flex flex-col items-center justify-center p-5 sm:p-8 bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-100 transition-all hover:shadow-2xl max-w-md w-full mx-auto">
+      <div className="relative mb-4 sm:mb-6 group">
         <button 
           onClick={isRecording ? stopRecording : startRecording}
           disabled={isProcessing}
+          aria-label={isRecording ? 'Parar gravação' : 'Iniciar gravação'}
           className={`
-            relative z-10 w-28 h-28 rounded-full flex items-center justify-center 
+            relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center 
             transition-all duration-200 transform active:translate-y-2 active:shadow-none
             ${isRecording 
               ? 'bg-red-500 shadow-[0_8px_0_rgb(185,28,28)] hover:bg-red-400' 
@@ -103,33 +185,32 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
           `}
         >
           {isRecording ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 sm:h-12 sm:w-12 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" />
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 sm:h-12 sm:w-12 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
           )}
         </button>
-        {/* Camada de efeito de "chão" para dar profundidade extra */}
-        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-4 bg-black/10 rounded-[100%] blur-md transition-all duration-200 group-active:w-20 group-active:blur-sm"></div>
+        <div className="absolute -bottom-3 sm:-bottom-4 left-1/2 -translate-x-1/2 w-20 sm:w-24 h-3 sm:h-4 bg-black/10 rounded-[100%] blur-md transition-all duration-200 group-active:w-16 group-active:blur-sm"></div>
       </div>
       
-      <div className="text-3xl font-black text-slate-700 mb-2 tracking-widest text-shadow-sm">
+      <div className="text-2xl sm:text-3xl font-black text-slate-700 mb-2 tracking-widest text-shadow-sm">
         {formatTime(recordingTime)}
       </div>
       
-      <p className="text-slate-500 font-bold text-center mb-6 text-lg">
+      <p className="text-slate-500 font-bold text-center mb-4 sm:mb-6 text-sm sm:text-lg">
         {isRecording ? "Gravando sua leitura... 🎤" : "Clique no botão para ler! 🚀"}
       </p>
 
       {isRecording && (
-        <div className="flex gap-2 h-8 items-end justify-center">
+        <div className="flex gap-1.5 sm:gap-2 h-6 sm:h-8 items-end justify-center">
           {[...Array(5)].map((_, i) => (
             <div 
               key={i} 
-              className="w-2 bg-red-400 rounded-full animate-bounce"
+              className="w-1.5 sm:w-2 bg-red-400 rounded-full animate-bounce"
               style={{ height: `${Math.random() * 100}%`, animationDuration: '0.8s', animationDelay: `${i * 0.1}s` }}
             ></div>
           ))}

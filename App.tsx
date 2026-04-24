@@ -59,6 +59,7 @@ const App: React.FC = () => {
   const [isStandalone, setIsStandalone] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [fontScale, setFontScale] = useState(1);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -273,7 +274,7 @@ const App: React.FC = () => {
           </header>
         )}
 
-        <main className="flex-grow w-full p-6 md:p-10 relative">
+        <main className={`flex-grow w-full relative ${isStandalone ? 'p-3 sm:p-6' : 'p-6 md:p-10'}`}>
         {isStandalone && !hasStarted && selectedStory ? (
           <div className="fixed inset-0 z-40 bg-gradient-to-br from-[#8B5CF6] via-[#7C3AED] to-[#6366F1] flex items-center justify-center p-6 animate-in fade-in duration-500">
             <button
@@ -364,58 +365,79 @@ const App: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                      <div className="lg:col-span-8 bg-white p-12 md:p-20 rounded-[4rem] shadow-xl shadow-violet-900/5 relative overflow-hidden border border-white">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-start">
+                      <div className="lg:col-span-8 bg-white p-5 sm:p-10 md:p-16 lg:p-20 rounded-3xl sm:rounded-[3rem] lg:rounded-[4rem] shadow-xl shadow-violet-900/5 relative overflow-hidden border border-white flex flex-col h-[42vh] lg:h-[45vh]">
                         
                         {!isStandalone && (
                           <button 
                             onClick={() => setSelectedStory(null)}
-                            className="absolute top-8 left-8 md:top-12 md:left-12 flex items-center gap-2 text-slate-400 hover:text-violet-600 font-bold text-sm transition-colors"
+                            className="absolute top-4 left-4 sm:top-8 sm:left-8 md:top-12 md:left-12 flex items-center gap-1.5 sm:gap-2 text-slate-400 hover:text-violet-600 font-bold text-xs sm:text-sm transition-colors z-10"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                             Voltar
                           </button>
                         )}
 
-                        <h3 className="text-3xl font-black text-[#1E293B] mb-8 mt-6">
+                        {recordingStep === 'READING' && (
+                          <div className="absolute top-4 right-4 sm:top-8 sm:right-8 md:top-12 md:right-12 flex items-center gap-1 sm:gap-2 bg-slate-50 rounded-full p-1 border border-slate-100 z-10">
+                            <button
+                              onClick={() => setFontScale(s => Math.max(0.7, +(s - 0.1).toFixed(2)))}
+                              disabled={fontScale <= 0.7}
+                              aria-label="Diminuir tamanho da fonte"
+                              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full bg-white text-slate-500 hover:text-violet-600 hover:bg-violet-50 font-black text-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                            >
+                              −
+                            </button>
+                            <span className="text-[10px] sm:text-xs font-bold text-slate-400 tabular-nums w-8 text-center">
+                              {Math.round(fontScale * 100)}%
+                            </span>
+                            <button
+                              onClick={() => setFontScale(s => Math.min(1.8, +(s + 0.1).toFixed(2)))}
+                              disabled={fontScale >= 1.8}
+                              aria-label="Aumentar tamanho da fonte"
+                              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full bg-white text-slate-500 hover:text-violet-600 hover:bg-violet-50 font-black text-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                            >
+                              +
+                            </button>
+                          </div>
+                        )}
+
+                        <h3 className={`text-xl sm:text-2xl md:text-3xl font-black text-[#1E293B] mb-4 sm:mb-6 md:mb-8 shrink-0 ${!isStandalone ? 'mt-10 sm:mt-8 md:mt-6' : 'mt-12 sm:mt-10'}`}>
                           {recordingStep === 'READING' ? (
                             activeView === 'TEST' ? `Avaliação: ${selectedStory.title}` : selectedStory.title
                           ) : "Agora, explique o que você entendeu:"}
                         </h3>
                         
                         {recordingStep === 'READING' ? (
-                          <p className="text-2xl md:text-3xl text-slate-700 leading-relaxed font-serif text-justify indent-10 animate-in fade-in duration-500">
-                            {selectedStory.content}
-                          </p>
+                          <div className="flex-1 overflow-y-auto pr-2 -mr-2">
+                            <p
+                              style={{
+                                fontSize: `clamp(${1 * fontScale}rem, ${2 * fontScale}vw + 0.5rem, ${1.875 * fontScale}rem)`,
+                                lineHeight: 1.6,
+                              }}
+                              className="text-slate-700 font-serif text-justify indent-6 sm:indent-10 animate-in fade-in duration-500"
+                            >
+                              {selectedStory.content}
+                            </p>
+                          </div>
                         ) : (
-                          <div className="space-y-6 animate-in slide-in-from-right duration-500">
-                             <div className="bg-violet-50 p-8 rounded-3xl border-2 border-violet-100">
-                                <p className="text-xl text-slate-600 font-medium leading-relaxed">
+                          <div className="space-y-4 sm:space-y-6 animate-in slide-in-from-right duration-500">
+                             <div className="bg-violet-50 p-5 sm:p-8 rounded-2xl sm:rounded-3xl border-2 border-violet-100">
+                                <p className="text-base sm:text-xl text-slate-600 font-medium leading-relaxed">
                                   Muito bem! Agora, clique no microfone novamente e conte com suas próprias palavras:
                                   <br/><br/>
                                   <span className="font-bold text-violet-600">1. Quem são os personagens?</span><br/>
                                   <span className="font-bold text-violet-600">2. O que aconteceu na história?</span>
                                 </p>
                              </div>
-                             <p className="text-slate-400 text-sm font-bold text-center uppercase tracking-widest">Grave sua explicação</p>
+                             <p className="text-slate-400 text-xs sm:text-sm font-bold text-center uppercase tracking-widest">Grave sua explicação</p>
                           </div>
                         )}
                       </div>
 
-                      <div className="lg:col-span-4 space-y-6">
-                        <div className="bg-white p-8 rounded-[3rem] shadow-xl shadow-violet-900/5 border border-white flex flex-col gap-6">
-                          <h4 className="text-[#8B5CF6] font-black uppercase tracking-widest text-xs">Identificação</h4>
-                          <input 
-                            type="text" 
-                            value={studentName}
-                            onChange={(e) => setStudentName(e.target.value)}
-                            disabled={recordingStep === 'INTERPRETATION'}
-                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 font-bold text-slate-800 focus:border-[#8B5CF6] outline-none transition-all disabled:opacity-50"
-                            placeholder="Nome do Aluno"
-                          />
-                        </div>
+                      <div className="lg:col-span-4 space-y-4 sm:space-y-6 lg:sticky lg:top-6">
                         <AudioRecorder 
-                          key={recordingStep} // Força remontagem para resetar estado visual ao mudar de passo
+                          key={recordingStep}
                           onRecordingComplete={handleRecordingComplete} 
                           isProcessing={false} 
                         />
@@ -423,22 +445,22 @@ const App: React.FC = () => {
                     </div>
                   )
                 ) : (
-                  <div className="max-w-2xl mx-auto bg-white p-16 rounded-[5rem] shadow-2xl text-center space-y-10 border border-white">
+                  <div className="max-w-2xl mx-auto bg-white p-6 sm:p-10 md:p-16 rounded-3xl sm:rounded-[3rem] md:rounded-[5rem] shadow-2xl text-center space-y-5 sm:space-y-8 md:space-y-10 border border-white">
                     {lastRecord?.status === 'processing' ? (
                       <>
-                        <div className="w-32 h-32 bg-violet-100 rounded-full flex items-center justify-center mx-auto border-8 border-white shadow-lg animate-pulse">
-                          <svg className="h-16 w-16 text-violet-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        <div className="w-24 h-24 sm:w-32 sm:h-32 bg-violet-100 rounded-full flex items-center justify-center mx-auto border-4 sm:border-8 border-white shadow-lg animate-pulse">
+                          <svg className="h-12 w-12 sm:h-16 sm:w-16 text-violet-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                         </div>
-                        <h2 className="text-4xl font-black text-slate-900 tracking-tight">Processando...</h2>
-                        <p className="text-xl text-slate-500 font-medium italic">A Inteligência Artificial está analisando sua leitura. Aguarde um momento!</p>
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Processando...</h2>
+                        <p className="text-base sm:text-xl text-slate-500 font-medium italic">A Inteligência Artificial está analisando sua leitura. Aguarde um momento!</p>
                       </>
                     ) : (
                       <>
-                        <div className="w-32 h-32 bg-[#DCFCE7] rounded-full flex items-center justify-center mx-auto border-8 border-white shadow-lg">
-                          <svg className="h-16 w-16 text-[#16A34A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" /></svg>
+                        <div className="w-24 h-24 sm:w-32 sm:h-32 bg-[#DCFCE7] rounded-full flex items-center justify-center mx-auto border-4 sm:border-8 border-white shadow-lg">
+                          <svg className="h-12 w-12 sm:h-16 sm:w-16 text-[#16A34A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" /></svg>
                         </div>
-                        <h2 className="text-5xl font-black text-slate-900 tracking-tight">Fantástico! 🚀</h2>
-                        <p className="text-xl text-slate-500 font-medium italic">Sua leitura e explicação foram analisadas com sucesso.</p>
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">Fantástico! 🚀</h2>
+                        <p className="text-base sm:text-xl text-slate-500 font-medium italic">Sua leitura e explicação foram analisadas com sucesso.</p>
                         
                         {activeView === 'TEST' ? (
                           <button 
@@ -447,24 +469,24 @@ const App: React.FC = () => {
                               setShowPrivacyPopup(true);
                               setStatus(AppStatus.IDLE);
                             }}
-                            className="w-full py-6 bg-[#8B5CF6] text-white text-xl font-black uppercase tracking-[0.2em] rounded-[2rem] shadow-[0_8px_0_#6D28D9] hover:bg-[#7C3AED] active:shadow-none active:translate-y-[8px] transition-all"
+                            className="w-full py-4 sm:py-6 bg-[#8B5CF6] text-white text-base sm:text-xl font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] rounded-2xl sm:rounded-[2rem] shadow-[0_6px_0_#6D28D9] sm:shadow-[0_8px_0_#6D28D9] hover:bg-[#7C3AED] active:shadow-none active:translate-y-[6px] sm:active:translate-y-[8px] transition-all"
                           >
                             Ver Minha Avaliação
                           </button>
                         ) : (
-                          <div className="flex gap-4">
+                          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                             <button 
                               onClick={() => {
                                 setSelectedRecordId(lastRecordId);
                                 setStatus(AppStatus.IDLE);
                               }}
-                              className="flex-1 py-6 bg-white border-2 border-violet-200 text-[#8B5CF6] text-xl font-black uppercase tracking-[0.2em] rounded-[2rem] hover:bg-violet-50 transition-all"
+                              className="flex-1 py-4 sm:py-6 bg-white border-2 border-violet-200 text-[#8B5CF6] text-base sm:text-xl font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] rounded-2xl sm:rounded-[2rem] hover:bg-violet-50 transition-all"
                             >
                               Ver Resultado
                             </button>
                             <button 
                               onClick={() => setStatus(AppStatus.IDLE)}
-                              className="flex-1 py-6 bg-[#8B5CF6] text-white text-xl font-black uppercase tracking-[0.2em] rounded-[2rem] shadow-[0_8px_0_#6D28D9] hover:bg-[#7C3AED] active:shadow-none active:translate-y-[8px] transition-all"
+                              className="flex-1 py-4 sm:py-6 bg-[#8B5CF6] text-white text-base sm:text-xl font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] rounded-2xl sm:rounded-[2rem] shadow-[0_6px_0_#6D28D9] sm:shadow-[0_8px_0_#6D28D9] hover:bg-[#7C3AED] active:shadow-none active:translate-y-[6px] sm:active:translate-y-[8px] transition-all"
                             >
                               Ler Mais
                             </button>
