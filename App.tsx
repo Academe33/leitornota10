@@ -57,6 +57,7 @@ const App: React.FC = () => {
   const [lastRecordId, setLastRecordId] = useState<string | null>(null);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -76,15 +77,46 @@ const App: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const challengeId = params.get('challenge');
+    const launch = params.get('launch');
     if (challengeId) {
       const story = STORIES.find(s => s.id === challengeId);
       if (story) {
         setSelectedStory(story);
         setIsStandalone(true);
-        setActiveView('TEST'); // Força o modo de teste para ativar o aviso de privacidade
+        setActiveView('TEST');
+        if (launch === '1') {
+          setHasStarted(true);
+          const tryFullscreen = () => {
+            const el = document.documentElement as HTMLElement & {
+              webkitRequestFullscreen?: () => Promise<void>;
+            };
+            const req = el.requestFullscreen || el.webkitRequestFullscreen;
+            if (req) {
+              req.call(el).catch(() => { /* usuário precisa interagir */ });
+            }
+          };
+          tryFullscreen();
+        }
       }
     }
   }, []);
+
+  const handleStartChallenge = () => {
+    if (!selectedStory) return;
+    const url = `${window.location.origin}/?challenge=${selectedStory.id}&launch=1`;
+    const features = 'noopener,noreferrer,fullscreen=yes,menubar=no,toolbar=no,location=no,status=no';
+    const newWin = window.open(url, '_blank', features);
+    if (!newWin) {
+      setHasStarted(true);
+      const el = document.documentElement as HTMLElement & {
+        webkitRequestFullscreen?: () => Promise<void>;
+      };
+      const req = el.requestFullscreen || el.webkitRequestFullscreen;
+      if (req) {
+        req.call(el).catch(() => { /* ignore */ });
+      }
+    }
+  };
 
   const handleRecordingComplete = async (blob: Blob) => {
     if (recordingStep === 'READING') {
@@ -220,7 +252,7 @@ const App: React.FC = () => {
           </header>
         )}
 
-        {isStandalone && (
+        {isStandalone && hasStarted && (
           <header className="px-6 py-4 flex justify-center items-center border-b border-slate-100 bg-white">
             <div className="bg-slate-50 px-5 py-2.5 rounded-full flex items-center gap-3">
               <img src={Logo} alt="Academe" className="h-5 object-contain opacity-50" />
@@ -230,7 +262,40 @@ const App: React.FC = () => {
         )}
 
         <main className="flex-grow w-full p-6 md:p-10 relative">
-        {selectedRecordId ? (
+        {isStandalone && !hasStarted && selectedStory ? (
+          <div className="fixed inset-0 z-40 bg-gradient-to-br from-[#8B5CF6] via-[#7C3AED] to-[#6366F1] flex items-center justify-center p-6 animate-in fade-in duration-500">
+            <div className="max-w-xl w-full bg-white rounded-[3rem] p-10 md:p-14 shadow-2xl text-center space-y-8">
+              <div className="inline-flex items-center gap-3 bg-violet-50 px-5 py-2 rounded-full">
+                <img src={Logo} alt="Academe" className="h-5 object-contain" />
+                <span className="text-violet-600 text-xs font-black tracking-widest uppercase">Desafio de Leitura</span>
+              </div>
+              <div className="space-y-3">
+                <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full ${
+                  selectedStory.difficulty === 'Fácil' ? 'bg-emerald-100 text-emerald-700' :
+                  selectedStory.difficulty === 'Médio' ? 'bg-amber-100 text-amber-700' :
+                  'bg-rose-100 text-rose-700'
+                }`}>
+                  {selectedStory.difficulty} · {selectedStory.theme}
+                </span>
+                <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                  {selectedStory.title}
+                </h1>
+                <p className="text-slate-500 font-medium leading-relaxed">
+                  Você vai ler este texto em voz alta e depois explicar o que entendeu. Sua avaliação será enviada ao professor.
+                </p>
+              </div>
+              <button
+                onClick={handleStartChallenge}
+                className="w-full py-6 bg-[#8B5CF6] text-white text-xl font-black uppercase tracking-[0.25em] rounded-[2rem] shadow-[0_8px_0_#6D28D9] hover:bg-[#7C3AED] active:shadow-none active:translate-y-[8px] transition-all"
+              >
+                Iniciar
+              </button>
+              <p className="text-xs text-slate-400 font-medium">
+                O desafio será aberto em tela cheia para você focar na leitura.
+              </p>
+            </div>
+          </div>
+        ) : selectedRecordId ? (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
              {showPrivacyPopup && activeView === 'TEST' && (
                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4">
