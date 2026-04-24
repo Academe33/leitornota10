@@ -20,6 +20,21 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
 
   const startRecording = async () => {
     try {
+      if (!window.isSecureContext) {
+        alert(
+          'Este navegador bloqueou o microfone porque a página não está em um contexto seguro.\n\n' +
+          'Abra o aplicativo por HTTPS (https://...) ou por http://localhost:3000. ' +
+          'Pelo IP da rede (http://192.168...) o microfone só funciona em HTTPS.'
+        );
+        return;
+      }
+      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        alert(
+          'Este navegador não expôs a API de microfone (navigator.mediaDevices).\n\n' +
+          'Use Chrome/Edge/Firefox/Safari atualizados e acesse via HTTPS ou localhost.'
+        );
+        return;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -42,8 +57,18 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
         setRecordingTime(prev => prev + 1);
       }, 1000);
     } catch (err) {
-      console.error("Erro ao acessar microfone:", err);
-      alert("Não foi possível acessar o microfone. Verifique as permissões.");
+      console.error('Erro ao acessar microfone:', err);
+      const anyErr = err as { name?: string; message?: string };
+      if (anyErr?.name === 'NotAllowedError' || anyErr?.name === 'SecurityError') {
+        alert('Permissão negada. Autorize o microfone nas configurações do navegador e tente novamente.');
+      } else if (anyErr?.name === 'NotFoundError' || anyErr?.name === 'OverconstrainedError') {
+        alert('Nenhum microfone foi encontrado neste dispositivo.');
+      } else {
+        alert(
+          'Não foi possível acessar o microfone. ' +
+          'Se estiver abrindo pelo IP da rede, use HTTPS (https://...) ou http://localhost:3000.'
+        );
+      }
     }
   };
 
