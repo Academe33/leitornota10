@@ -4,6 +4,7 @@ import { analyzeReadingAudio } from './services/geminiService';
 import AudioRecorder from './components/AudioRecorder';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import HistoryList from './components/HistoryList';
+import Sidebar from './components/Sidebar';
 import Logo from './assets/logo.png';
 
 const PRE_PROGRAMMED_STORY = {
@@ -129,33 +130,47 @@ const App: React.FC = () => {
     ? records.filter(r => r.studentName === selectedRecord.studentName && r.status === 'completed')
     : [];
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[#DDD6FE] bg-opacity-40 font-sans pb-10">
-      {/* Header Estilo Academe Kids */}
-      <header className="px-6 py-6 flex justify-between items-center max-w-7xl mx-auto w-full">
-        <div className="bg-white px-6 py-3 rounded-full shadow-sm flex items-center gap-3">
-          <img src={Logo} alt="Academe" className="h-6 object-contain" />
-          <span className="bg-[#8B5CF6] text-white px-3 py-0.5 rounded-full text-sm font-bold">Kids</span>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => { 
-              setActiveView(activeView === 'STUDENT' ? 'MANAGER' : 'STUDENT'); 
-              setSelectedRecordId(null); 
-              setStatus(AppStatus.IDLE);
-              setRecordingStep('READING');
-              setReadingBlob(null);
-            }}
-            className="bg-white text-[#8B5CF6] px-8 py-3 rounded-2xl shadow-[0_6px_0_#DDD6FE] text-sm font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-slate-50 active:shadow-none active:translate-y-[6px] transition-all"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"/></svg>
-            {activeView === 'STUDENT' ? 'Painel Gestor' : 'Área do Aluno'}
-          </button>
-        </div>
-      </header>
+  const handleChangeView = (view: ActiveView) => {
+    setActiveView(view);
+    setSelectedRecordId(null);
+    setStatus(AppStatus.IDLE);
+    setRecordingStep('READING');
+    setReadingBlob(null);
+  };
 
-      <main className="flex-grow max-w-7xl mx-auto w-full p-6">
+  const firstName = (studentName.trim().split(' ')[0]) || 'Aluno';
+
+  return (
+    <div className="min-h-screen flex bg-[#F8FAFC] font-sans text-slate-900">
+      <Sidebar activeView={activeView} onChangeView={handleChangeView} />
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="px-6 md:px-10 py-6 flex flex-wrap gap-4 justify-between items-center border-b border-slate-100 bg-white/60 backdrop-blur-sm">
+          <div className="flex items-center gap-4">
+            <div className="bg-white px-5 py-2.5 rounded-full shadow-sm flex items-center gap-3 border border-slate-100">
+              <img src={Logo} alt="Academe" className="h-6 object-contain" />
+              <span className="bg-[#8B5CF6] text-white px-3 py-0.5 rounded-full text-xs font-black tracking-wider">KIDS</span>
+            </div>
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-black text-slate-900">Olá, {firstName}! <span className="inline-block">👋</span></h1>
+              <p className="text-xs text-slate-500 font-medium">
+                {activeView === 'STUDENT' ? 'Pronto para uma nova leitura?' : 'Visão geral da turma'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
+              <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Sem notificações</span>
+            </div>
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#8B5CF6] to-[#6366F1] text-white flex items-center justify-center font-black text-sm shadow-lg shadow-violet-500/30">
+              {firstName.charAt(0).toUpperCase()}
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-grow w-full p-6 md:p-10">
         {selectedRecordId ? (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
              {selectedRecord && selectedRecord.result && (
@@ -238,7 +253,8 @@ const App: React.FC = () => {
             )}
           </>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
