@@ -407,7 +407,7 @@ const App: React.FC = () => {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-start">
-                      <div className="lg:col-span-8 bg-white p-5 sm:p-10 md:p-16 lg:p-20 rounded-3xl sm:rounded-[3rem] lg:rounded-[4rem] shadow-xl shadow-violet-900/5 relative overflow-hidden border border-white flex flex-col h-[42vh] lg:h-[45vh]">
+                      <div className="lg:col-span-8 bg-white p-5 sm:p-10 md:p-16 lg:p-20 rounded-3xl sm:rounded-[3rem] lg:rounded-[4rem] shadow-xl shadow-violet-900/5 relative overflow-hidden border border-white flex flex-col h-[48vh] lg:h-[52vh]">
                         
                         {!isStandalone && (
                           <button 
