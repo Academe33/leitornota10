@@ -58,6 +58,7 @@ const App: React.FC = () => {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -75,6 +76,11 @@ const App: React.FC = () => {
   }, [records]);
 
   useEffect(() => {
+    const ua = navigator.userAgent || '';
+    const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+      || (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 768px)').matches && 'ontouchstart' in window);
+    setIsMobile(mobile);
+
     const params = new URLSearchParams(window.location.search);
     const challengeId = params.get('challenge');
     const launch = params.get('launch');
@@ -84,18 +90,20 @@ const App: React.FC = () => {
         setSelectedStory(story);
         setIsStandalone(true);
         setActiveView('TEST');
-        if (launch === '1') {
+        if (launch === '1' || !mobile) {
           setHasStarted(true);
-          const tryFullscreen = () => {
-            const el = document.documentElement as HTMLElement & {
-              webkitRequestFullscreen?: () => Promise<void>;
+          if (launch === '1') {
+            const tryFullscreen = () => {
+              const el = document.documentElement as HTMLElement & {
+                webkitRequestFullscreen?: () => Promise<void>;
+              };
+              const req = el.requestFullscreen || el.webkitRequestFullscreen;
+              if (req) {
+                req.call(el).catch(() => { /* usuário precisa interagir */ });
+              }
             };
-            const req = el.requestFullscreen || el.webkitRequestFullscreen;
-            if (req) {
-              req.call(el).catch(() => { /* usuário precisa interagir */ });
-            }
-          };
-          tryFullscreen();
+            tryFullscreen();
+          }
         }
       }
     }
@@ -103,6 +111,10 @@ const App: React.FC = () => {
 
   const handleStartChallenge = () => {
     if (!selectedStory) return;
+    if (!isMobile) {
+      setHasStarted(true);
+      return;
+    }
     const url = `${window.location.origin}/?challenge=${selectedStory.id}&launch=1`;
     const features = 'noopener,noreferrer,fullscreen=yes,menubar=no,toolbar=no,location=no,status=no';
     const newWin = window.open(url, '_blank', features);
