@@ -78,6 +78,18 @@ const App: React.FC = () => {
     setLiveTranscript('');
   }, [selectedStory, recordingStep]);
 
+  useEffect(() => {
+    const isReadingScreen = !!selectedStory && hasStarted;
+    if (isReadingScreen) {
+      document.body.classList.add('reading-mode');
+    } else {
+      document.body.classList.remove('reading-mode');
+    }
+    return () => {
+      document.body.classList.remove('reading-mode');
+    };
+  }, [selectedStory, hasStarted]);
+
   const spokenCount = React.useMemo(() => {
     if (!liveTranscript || storyWords.length === 0) return 0;
     const spoken = liveTranscript.split(/\s+/).map(normalizeWord).filter(Boolean);
@@ -401,7 +413,7 @@ const App: React.FC = () => {
                       className="flex flex-col lg:grid lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 lg:items-start h-[calc(100dvh-7rem)] sm:h-[calc(100dvh-8rem)] lg:h-auto"
                       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
                     >
-                      <div className="lg:col-span-8 bg-white p-4 sm:p-8 md:p-14 lg:p-16 rounded-2xl sm:rounded-[3rem] lg:rounded-[4rem] shadow-xl shadow-violet-900/5 relative overflow-hidden border border-white flex flex-col flex-1 min-h-0 lg:h-[75vh]">
+                      <div className="lg:col-span-6 bg-[#1A1A1A] p-4 sm:p-8 md:p-14 lg:p-16 rounded-2xl sm:rounded-[3rem] lg:rounded-[4rem] shadow-2xl shadow-violet-900/30 ring-1 ring-violet-500/10 relative overflow-hidden border border-violet-500/20 flex flex-col flex-1 min-h-0 lg:h-[75vh]">
                         
                         {!isStandalone && (
                           <button 
@@ -414,30 +426,30 @@ const App: React.FC = () => {
                         )}
 
                         {recordingStep === 'READING' && (
-                          <div className="absolute top-4 right-4 sm:top-8 sm:right-8 md:top-12 md:right-12 flex items-center gap-1 sm:gap-2 bg-slate-50 rounded-full p-1 border border-slate-100 z-10">
+                          <div className="absolute top-4 right-4 sm:top-8 sm:right-8 md:top-12 md:right-12 flex items-center gap-1 sm:gap-2 bg-[#0F0F0F] rounded-full p-1 border border-violet-500/20 z-10">
                             <button
                               onClick={() => setFontScale(s => Math.max(0.7, +(s - 0.1).toFixed(2)))}
                               disabled={fontScale <= 0.7}
                               aria-label="Diminuir tamanho da fonte"
-                              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full bg-white text-slate-500 hover:text-violet-600 hover:bg-violet-50 font-black text-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full bg-[#2A2036] text-violet-300 hover:text-white hover:bg-[#8B5CF6] font-black text-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               −
                             </button>
-                            <span className="text-[10px] sm:text-xs font-bold text-slate-400 tabular-nums w-8 text-center">
+                            <span className="text-[10px] sm:text-xs font-bold text-violet-300 tabular-nums w-8 text-center">
                               {Math.round(fontScale * 100)}%
                             </span>
                             <button
                               onClick={() => setFontScale(s => Math.min(1.8, +(s + 0.1).toFixed(2)))}
                               disabled={fontScale >= 1.8}
                               aria-label="Aumentar tamanho da fonte"
-                              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full bg-white text-slate-500 hover:text-violet-600 hover:bg-violet-50 font-black text-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full bg-[#2A2036] text-violet-300 hover:text-white hover:bg-[#8B5CF6] font-black text-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               +
                             </button>
                           </div>
                         )}
 
-                        <h3 className={`text-xl sm:text-2xl md:text-3xl font-black text-[#1E293B] mb-4 sm:mb-6 md:mb-8 shrink-0 ${!isStandalone ? 'mt-10 sm:mt-8 md:mt-6' : 'mt-12 sm:mt-10'}`}>
+                        <h3 className={`text-xl sm:text-2xl md:text-3xl font-black text-violet-100 mb-4 sm:mb-6 md:mb-8 shrink-0 ${!isStandalone ? 'mt-10 sm:mt-8 md:mt-6' : 'mt-12 sm:mt-10'}`}>
                           {recordingStep === 'READING' ? (
                             activeView === 'TEST' ? `Avaliação: ${selectedStory.title}` : selectedStory.title
                           ) : "Agora, explique o que você entendeu:"}
@@ -450,7 +462,7 @@ const App: React.FC = () => {
                                 fontSize: `clamp(${1 * fontScale}rem, ${2 * fontScale}vw + 0.5rem, ${1.875 * fontScale}rem)`,
                                 lineHeight: 1.6,
                               }}
-                              className="text-slate-700 font-serif text-justify animate-in fade-in duration-500"
+                              className="text-slate-200 font-serif text-justify animate-in fade-in duration-500"
                             >
                               <span className="inline-block w-6 sm:w-10" />
                               {storyWords.map((word, idx) => {
@@ -490,7 +502,7 @@ const App: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="lg:col-span-4 shrink-0 w-full lg:sticky lg:top-6 flex justify-center items-end">
+                      <div className="lg:col-span-6 shrink-0 w-full lg:sticky lg:top-6 flex justify-stretch items-end">
                         <AudioRecorder 
                           key={recordingStep}
                           onRecordingComplete={handleRecordingComplete} 

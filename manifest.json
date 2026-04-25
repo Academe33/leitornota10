@@ -7,8 +7,8 @@
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#111111",
-  "theme_color": "#111111",
+  "background_color": "#8B5CF6",
+  "theme_color": "#8B5CF6",
   "icons": [
     {
       "src": "/assets/logo.png",

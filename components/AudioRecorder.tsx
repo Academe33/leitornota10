@@ -171,7 +171,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
   };
 
   return (
-    <div className="flex flex-row lg:flex-col items-center justify-start lg:justify-center gap-3 sm:gap-4 lg:gap-0 p-3 sm:p-5 lg:p-8 bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-100 transition-all hover:shadow-2xl w-full max-w-md mx-auto">
+    <div className="flex flex-row lg:flex-col items-center justify-start lg:justify-center gap-3 sm:gap-4 lg:gap-0 p-3 sm:p-5 lg:p-8 bg-[#1A1A1A] rounded-2xl sm:rounded-3xl shadow-2xl shadow-violet-900/30 ring-1 ring-violet-500/10 border border-violet-500/20 transition-all hover:border-violet-500/40 w-full">
       <div className="relative group shrink-0 lg:mb-6">
         <button 
           onClick={isRecording ? stopRecording : startRecording}
@@ -201,11 +201,11 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
       </div>
 
       <div className="flex flex-col items-start lg:items-center flex-1 lg:flex-none min-w-0 text-left lg:text-center">
-        <div className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-700 tracking-widest text-shadow-sm tabular-nums">
+        <div className="text-xl sm:text-2xl lg:text-3xl font-black text-violet-100 tracking-widest tabular-nums">
           {formatTime(recordingTime)}
         </div>
         
-        <p className="text-slate-500 font-bold text-left lg:text-center mt-1 lg:mt-2 lg:mb-6 text-xs sm:text-sm lg:text-lg truncate max-w-full">
+        <p className="text-violet-300/80 font-bold text-left lg:text-center mt-1 lg:mt-2 lg:mb-6 text-xs sm:text-sm lg:text-lg truncate max-w-full">
           {isRecording ? "Gravando... 🎤" : "Clique para ler! 🚀"}
         </p>
 
