@@ -45,7 +45,7 @@ type RecordingStep = 'READING' | 'INTERPRETATION';
 
 const App: React.FC = () => {
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
-  const [activeView, setActiveView] = useState<ActiveView>('STUDENT');
+  const [activeView, setActiveView] = useState<ActiveView>('MANAGER');
   const [records, setRecords] = useState<ReadingRecord[]>([]);
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
   const [studentName, setStudentName] = useState('André Silva');

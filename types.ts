@@ -18,12 +18,18 @@ export interface AnalysisResult {
   estimatedWPM: number;
 }
 
+export type Shift = 'Manhã' | 'Tarde' | 'Noite';
+export type Grade = '1º Ano' | '2º Ano' | '3º Ano' | '4º Ano' | '5º Ano' | '6º Ano' | '7º Ano' | '8º Ano' | '9º Ano';
+
 export interface ReadingRecord {
   id: string;
   studentName: string;
   timestamp: number;
   status: 'processing' | 'completed' | 'error';
   result?: AnalysisResult;
+  classroom?: string;
+  grade?: Grade;
+  shift?: Shift;
 }
 
 export enum AppStatus {

@@ -17,16 +17,6 @@ interface NavItem {
 const Sidebar: React.FC<SidebarProps> = ({ activeView, onChangeView }) => {
   const items: NavItem[] = [
     {
-      id: 'home',
-      label: 'Início',
-      view: 'STUDENT',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 12l2-2m0 0l7-7 7 7m-9 2v8a1 1 0 001 1h3m10-11l2 2m-2-2v8a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      ),
-    },
-    {
       id: 'dashboard',
       label: 'Painel',
       view: 'MANAGER',
@@ -84,8 +74,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onChangeView }) => {
       {/* Logo */}
       <button
         type="button"
-        onClick={() => onChangeView('STUDENT')}
-        aria-label="Início"
+        onClick={() => onChangeView('MANAGER')}
+        aria-label="Painel"
         className="w-12 h-12 rounded-2xl bg-[#8B5CF6] flex items-center justify-center text-white shadow-[0_6px_0_#6D28D9] hover:bg-[#7C3AED] active:shadow-none active:translate-y-[6px] transition-all mb-6"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
