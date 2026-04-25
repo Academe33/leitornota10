@@ -147,9 +147,26 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
           {formatTime(recordingTime)}
         </div>
         
-        <p className="text-violet-300/80 font-bold text-left lg:text-center mt-1 lg:mt-2 lg:mb-6 text-xs sm:text-sm lg:text-lg truncate max-w-full">
-          {isRecording ? "Gravando... 🎤" : "Clique para ler! 🚀"}
-        </p>
+        <p className="text-violet-300/80 font-bold text-left lg:text-center mt-1 lg:mt-2 lg:mb-6 text-xs sm:text-sm lg:text-lg truncate max-w-full inline-flex items-center justify-start lg:justify-center gap-1.5">
+            {isRecording ? (
+              <>
+                Gravando...
+                <svg className="w-4 h-4 lg:w-5 lg:h-5 text-white drop-shadow-[0_1px_2px_rgba(139,92,246,0.4)]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 14a3 3 0 003-3V6a3 3 0 10-6 0v5a3 3 0 003 3z" />
+                  <path d="M18 11a1 1 0 10-2 0 4 4 0 01-8 0 1 1 0 10-2 0 6 6 0 005 5.917V19H8.5a1 1 0 100 2h7a1 1 0 100-2H13v-2.083A6 6 0 0018 11z" />
+                </svg>
+              </>
+            ) : (
+              <>
+                Clique para ler!
+                <svg className="w-4 h-4 lg:w-5 lg:h-5 text-white drop-shadow-[0_1px_2px_rgba(139,92,246,0.4)]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06z" />
+                  <path fillRule="evenodd" clipRule="evenodd" d="M17.03 8.47a.75.75 0 011.06 0 5.5 5.5 0 010 7.78.75.75 0 11-1.06-1.06 4 4 0 000-5.66.75.75 0 010-1.06z" />
+                  <path fillRule="evenodd" clipRule="evenodd" d="M19.15 6.35a.75.75 0 011.06 0 8.5 8.5 0 010 12.02.75.75 0 11-1.06-1.06 7 7 0 000-9.9.75.75 0 010-1.06z" />
+                </svg>
+              </>
+            )}
+          </p>
 
         {isRecording && (
           <div className="hidden lg:flex gap-2 h-8 items-end justify-center">
