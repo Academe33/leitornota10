@@ -112,7 +112,7 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
         key={record.id}
         className="bg-white rounded-[2rem] p-5 md:p-6 shadow-sm hover:shadow-md transition-all border border-white flex flex-col md:flex-row items-center gap-5 group"
       >
-        <div className="w-14 h-14 shrink-0 rounded-2xl bg-[#F5F3FF] flex items-center justify-center text-xl font-black text-[#8B5CF6]">
+        <div className="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br from-[#8B5CF6] to-[#6366F1] flex items-center justify-center text-xl font-black text-white shadow-lg shadow-violet-500/30">
           {record.studentName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
         </div>
 
@@ -337,7 +337,7 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
             <div key={grade} className="bg-white rounded-[2.5rem] p-6 md:p-8 border border-white shadow-sm">
               <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#F5F3FF] border border-[#DDD6FE] flex items-center justify-center text-lg font-black text-[#8B5CF6]">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#8B5CF6] to-[#6366F1] flex items-center justify-center text-lg font-black text-white shadow-lg shadow-violet-500/30">
                     {grade.split(' ')[0]}
                   </div>
                   <div>
