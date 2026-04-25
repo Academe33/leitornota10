@@ -69,17 +69,17 @@
         .soft-paper-bg > * { position: relative; z-index: 1; }
 
         /* ===== Dark theme APENAS na tela do desafio de leitura =====
-           Ativado por body.reading-mode, body.dark-mode. O resto do app permanece light. */
-        body.reading-mode, body.dark-mode { background-color: #111111 !important; color: #E5E7EB; }
+           Ativado por body.reading-mode. O resto do app permanece light. */
+        body.reading-mode { background-color: #111111 !important; color: #E5E7EB; }
 
         /* Padrão calmo no fundo escuro — estrelas violeta bem suaves */
-        body.reading-mode, body.dark-mode::before {
+        body.reading-mode::before {
             background-image:
                 radial-gradient(circle at 20% 15%, rgba(139, 92, 246, 0.18), transparent 50%),
                 radial-gradient(circle at 80% 85%, rgba(124, 58, 237, 0.14), transparent 55%),
                 radial-gradient(circle at 50% 50%, rgba(76, 29, 149, 0.10), transparent 70%);
         }
-        body.reading-mode, body.dark-mode::after {
+        body.reading-mode::after {
             opacity: 0.35;
             background-image: radial-gradient(rgba(167, 139, 250, 0.25) 1px, transparent 1px);
             background-size: 32px 32px;
@@ -88,120 +88,120 @@
         }
 
         /* Variante dark do papel suave */
-        body.reading-mode, body.dark-mode .soft-paper-bg {
+        body.reading-mode .soft-paper-bg {
             background-image:
                 radial-gradient(circle at 20% 10%, rgba(139, 92, 246, 0.12), transparent 45%),
                 radial-gradient(circle at 80% 90%, rgba(124, 58, 237, 0.10), transparent 50%);
         }
-        body.reading-mode, body.dark-mode .soft-paper-bg::before {
+        body.reading-mode .soft-paper-bg::before {
             opacity: 0.28;
             background-image: radial-gradient(rgba(167, 139, 250, 0.3) 0.9px, transparent 0.9px);
         }
 
         /* -------- Fundos claros -> fundo principal escuro -------- */
-        body.reading-mode, body.dark-mode .bg-slate-50,
-        body.reading-mode, body.dark-mode .bg-gray-50,
-        body.reading-mode, body.dark-mode .bg-\[\#F8FAFC\],
-        body.reading-mode, body.dark-mode .bg-\[\#F5F3FF\],
-        body.reading-mode, body.dark-mode .bg-\[\#F0FDF4\],
-        body.reading-mode, body.dark-mode .bg-\[\#FFFBEB\],
-        body.reading-mode, body.dark-mode .bg-\[\#FEF2F2\] { background-color: #111111 !important; }
+        body.reading-mode .bg-slate-50,
+        body.reading-mode .bg-gray-50,
+        body.reading-mode .bg-\[\#F8FAFC\],
+        body.reading-mode .bg-\[\#F5F3FF\],
+        body.reading-mode .bg-\[\#F0FDF4\],
+        body.reading-mode .bg-\[\#FFFBEB\],
+        body.reading-mode .bg-\[\#FEF2F2\] { background-color: #111111 !important; }
 
         /* Cards brancos -> card escuro */
-        body.reading-mode, body.dark-mode .bg-white { background-color: #1A1A1A !important; }
-        body.reading-mode, body.dark-mode .bg-white\/80 { background-color: rgba(26, 26, 26, 0.8) !important; }
-        body.reading-mode, body.dark-mode .bg-white\/60 { background-color: rgba(26, 26, 26, 0.6) !important; }
-        body.reading-mode, body.dark-mode .bg-white\/50 { background-color: rgba(26, 26, 26, 0.5) !important; }
-        body.reading-mode, body.dark-mode .bg-white\/40 { background-color: rgba(26, 26, 26, 0.4) !important; }
-        body.reading-mode, body.dark-mode .bg-white\/20 { background-color: rgba(255, 255, 255, 0.06) !important; }
-        body.reading-mode, body.dark-mode .bg-white\/10 { background-color: rgba(255, 255, 255, 0.04) !important; }
+        body.reading-mode .bg-white { background-color: #1A1A1A !important; }
+        body.reading-mode .bg-white\/80 { background-color: rgba(26, 26, 26, 0.8) !important; }
+        body.reading-mode .bg-white\/60 { background-color: rgba(26, 26, 26, 0.6) !important; }
+        body.reading-mode .bg-white\/50 { background-color: rgba(26, 26, 26, 0.5) !important; }
+        body.reading-mode .bg-white\/40 { background-color: rgba(26, 26, 26, 0.4) !important; }
+        body.reading-mode .bg-white\/20 { background-color: rgba(255, 255, 255, 0.06) !important; }
+        body.reading-mode .bg-white\/10 { background-color: rgba(255, 255, 255, 0.04) !important; }
 
         /* Overlays escuros (modais) ajustados */
-        body.reading-mode, body.dark-mode .bg-slate-900\/50 { background-color: rgba(0, 0, 0, 0.65) !important; }
-        body.reading-mode, body.dark-mode .bg-slate-900\/40 { background-color: rgba(0, 0, 0, 0.55) !important; }
+        body.reading-mode .bg-slate-900\/50 { background-color: rgba(0, 0, 0, 0.65) !important; }
+        body.reading-mode .bg-slate-900\/40 { background-color: rgba(0, 0, 0, 0.55) !important; }
 
         /* Tons claros secundários */
-        body.reading-mode, body.dark-mode .bg-slate-100,
-        body.reading-mode, body.dark-mode .bg-gray-100 { background-color: #1F1F1F !important; }
-        body.reading-mode, body.dark-mode .bg-slate-200,
-        body.reading-mode, body.dark-mode .bg-gray-200 { background-color: #262626 !important; }
+        body.reading-mode .bg-slate-100,
+        body.reading-mode .bg-gray-100 { background-color: #1F1F1F !important; }
+        body.reading-mode .bg-slate-200,
+        body.reading-mode .bg-gray-200 { background-color: #262626 !important; }
 
         /* Acento violeta suave em dark */
-        body.reading-mode, body.dark-mode .bg-violet-50 { background-color: #2A1F3D !important; }
-        body.reading-mode, body.dark-mode .bg-violet-100 { background-color: #3B2A57 !important; }
-        body.reading-mode, body.dark-mode .bg-violet-200 { background-color: #4B3574 !important; }
+        body.reading-mode .bg-violet-50 { background-color: #2A1F3D !important; }
+        body.reading-mode .bg-violet-100 { background-color: #3B2A57 !important; }
+        body.reading-mode .bg-violet-200 { background-color: #4B3574 !important; }
 
         /* Status chips (sucesso/warning/erro) em versões dark */
-        body.reading-mode, body.dark-mode .bg-\[\#DCFCE7\] { background-color: #14532D !important; }
-        body.reading-mode, body.dark-mode .bg-\[\#FEF3C7\] { background-color: #78350F !important; }
-        body.reading-mode, body.dark-mode .bg-\[\#FEE2E2\] { background-color: #7F1D1D !important; }
+        body.reading-mode .bg-\[\#DCFCE7\] { background-color: #14532D !important; }
+        body.reading-mode .bg-\[\#FEF3C7\] { background-color: #78350F !important; }
+        body.reading-mode .bg-\[\#FEE2E2\] { background-color: #7F1D1D !important; }
 
         /* -------- Texto -------- */
-        body.reading-mode, body.dark-mode .text-slate-900,
-        body.reading-mode, body.dark-mode .text-\[\#1E293B\],
-        body.reading-mode, body.dark-mode .text-gray-900,
-        body.reading-mode, body.dark-mode .text-black { color: #F1F5F9 !important; }
-        body.reading-mode, body.dark-mode .text-slate-800,
-        body.reading-mode, body.dark-mode .text-gray-800 { color: #E2E8F0 !important; }
-        body.reading-mode, body.dark-mode .text-slate-700,
-        body.reading-mode, body.dark-mode .text-gray-700 { color: #CBD5E1 !important; }
-        body.reading-mode, body.dark-mode .text-slate-600,
-        body.reading-mode, body.dark-mode .text-gray-600 { color: #94A3B8 !important; }
-        body.reading-mode, body.dark-mode .text-slate-500,
-        body.reading-mode, body.dark-mode .text-gray-500 { color: #94A3B8 !important; }
-        body.reading-mode, body.dark-mode .text-slate-400,
-        body.reading-mode, body.dark-mode .text-gray-400 { color: #64748B !important; }
-        body.reading-mode, body.dark-mode .text-slate-300,
-        body.reading-mode, body.dark-mode .text-gray-300 { color: #94A3B8 !important; }
+        body.reading-mode .text-slate-900,
+        body.reading-mode .text-\[\#1E293B\],
+        body.reading-mode .text-gray-900,
+        body.reading-mode .text-black { color: #F1F5F9 !important; }
+        body.reading-mode .text-slate-800,
+        body.reading-mode .text-gray-800 { color: #E2E8F0 !important; }
+        body.reading-mode .text-slate-700,
+        body.reading-mode .text-gray-700 { color: #CBD5E1 !important; }
+        body.reading-mode .text-slate-600,
+        body.reading-mode .text-gray-600 { color: #94A3B8 !important; }
+        body.reading-mode .text-slate-500,
+        body.reading-mode .text-gray-500 { color: #94A3B8 !important; }
+        body.reading-mode .text-slate-400,
+        body.reading-mode .text-gray-400 { color: #64748B !important; }
+        body.reading-mode .text-slate-300,
+        body.reading-mode .text-gray-300 { color: #94A3B8 !important; }
 
         /* -------- Bordas -------- */
-        body.reading-mode, body.dark-mode .border-white,
-        body.reading-mode, body.dark-mode .border-slate-100,
-        body.reading-mode, body.dark-mode .border-slate-200,
-        body.reading-mode, body.dark-mode .border-gray-100,
-        body.reading-mode, body.dark-mode .border-gray-200 { border-color: #2A2A2A !important; }
-        body.reading-mode, body.dark-mode .border-slate-300,
-        body.reading-mode, body.dark-mode .border-gray-300 { border-color: #3A3A3A !important; }
-        body.reading-mode, body.dark-mode .border-violet-100,
-        body.reading-mode, body.dark-mode .border-violet-200,
-        body.reading-mode, body.dark-mode .border-\[\#DDD6FE\] { border-color: #4B3574 !important; }
-        body.reading-mode, body.dark-mode .border-\[\#DCFCE7\] { border-color: #14532D !important; }
-        body.reading-mode, body.dark-mode .border-\[\#FEF3C7\] { border-color: #78350F !important; }
-        body.reading-mode, body.dark-mode .border-\[\#FEE2E2\] { border-color: #7F1D1D !important; }
-        body.reading-mode, body.dark-mode .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
-        body.reading-mode, body.dark-mode .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #2A2A2A !important; }
+        body.reading-mode .border-white,
+        body.reading-mode .border-slate-100,
+        body.reading-mode .border-slate-200,
+        body.reading-mode .border-gray-100,
+        body.reading-mode .border-gray-200 { border-color: #2A2A2A !important; }
+        body.reading-mode .border-slate-300,
+        body.reading-mode .border-gray-300 { border-color: #3A3A3A !important; }
+        body.reading-mode .border-violet-100,
+        body.reading-mode .border-violet-200,
+        body.reading-mode .border-\[\#DDD6FE\] { border-color: #4B3574 !important; }
+        body.reading-mode .border-\[\#DCFCE7\] { border-color: #14532D !important; }
+        body.reading-mode .border-\[\#FEF3C7\] { border-color: #78350F !important; }
+        body.reading-mode .border-\[\#FEE2E2\] { border-color: #7F1D1D !important; }
+        body.reading-mode .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+        body.reading-mode .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #2A2A2A !important; }
 
         /* -------- Destaque de leitura (palavra atual) -------- */
-        body.reading-mode, body.dark-mode .text-violet-900 { color: #EDE9FE !important; }
-        body.reading-mode, body.dark-mode .text-violet-700 { color: #C4B5FD !important; }
-        body.reading-mode, body.dark-mode .text-violet-600 { color: #A78BFA !important; }
+        body.reading-mode .text-violet-900 { color: #EDE9FE !important; }
+        body.reading-mode .text-violet-700 { color: #C4B5FD !important; }
+        body.reading-mode .text-violet-600 { color: #A78BFA !important; }
 
         /* Cores de texto arbitrárias em status (mantêm identidade) */
-        body.reading-mode, body.dark-mode .text-\[\#16A34A\] { color: #4ADE80 !important; }
-        body.reading-mode, body.dark-mode .text-\[\#D97706\] { color: #FBBF24 !important; }
-        body.reading-mode, body.dark-mode .text-\[\#EF4444\] { color: #F87171 !important; }
-        body.reading-mode, body.dark-mode .text-\[\#DDD6FE\] { color: #C4B5FD !important; }
+        body.reading-mode .text-\[\#16A34A\] { color: #4ADE80 !important; }
+        body.reading-mode .text-\[\#D97706\] { color: #FBBF24 !important; }
+        body.reading-mode .text-\[\#EF4444\] { color: #F87171 !important; }
+        body.reading-mode .text-\[\#DDD6FE\] { color: #C4B5FD !important; }
 
         /* -------- Sombras em dark -------- */
-        body.reading-mode, body.dark-mode .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.4) !important; }
-        body.reading-mode, body.dark-mode .shadow,
-        body.reading-mode, body.dark-mode .shadow-md { box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important; }
-        body.reading-mode, body.dark-mode .shadow-lg,
-        body.reading-mode, body.dark-mode .shadow-xl,
-        body.reading-mode, body.dark-mode .shadow-2xl { box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; }
+        body.reading-mode .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.4) !important; }
+        body.reading-mode .shadow,
+        body.reading-mode .shadow-md { box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important; }
+        body.reading-mode .shadow-lg,
+        body.reading-mode .shadow-xl,
+        body.reading-mode .shadow-2xl { box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; }
 
         /* -------- Inputs -------- */
-        body.reading-mode, body.dark-mode input,
-        body.reading-mode, body.dark-mode textarea,
-        body.reading-mode, body.dark-mode select { background-color: #1A1A1A; color: #E5E7EB; border-color: #2A2A2A; }
-        body.reading-mode, body.dark-mode input::placeholder,
-        body.reading-mode, body.dark-mode textarea::placeholder { color: #64748B; }
+        body.reading-mode input,
+        body.reading-mode textarea,
+        body.reading-mode select { background-color: #1A1A1A; color: #E5E7EB; border-color: #2A2A2A; }
+        body.reading-mode input::placeholder,
+        body.reading-mode textarea::placeholder { color: #64748B; }
 
         /* -------- Scrollbar dark só em reading-mode -------- */
-        body.reading-mode, body.dark-mode ::-webkit-scrollbar { width: 10px; height: 10px; }
-        body.reading-mode, body.dark-mode ::-webkit-scrollbar-track { background: #111111; }
-        body.reading-mode, body.dark-mode ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 8px; }
-        body.reading-mode, body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #3A3A3A; }
+        body.reading-mode ::-webkit-scrollbar { width: 10px; height: 10px; }
+        body.reading-mode ::-webkit-scrollbar-track { background: #111111; }
+        body.reading-mode ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 8px; }
+        body.reading-mode ::-webkit-scrollbar-thumb:hover { background: #3A3A3A; }
     </style>
 <script type="importmap">
 {
