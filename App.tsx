@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AppStatus, AnalysisResult, ActiveView, ReadingRecord } from './types';
 import { analyzeReadingAudio } from './services/geminiService';
 import AudioRecorder from './components/AudioRecorder';
@@ -68,6 +68,28 @@ const App: React.FC = () => {
   });
   const [isMobile, setIsMobile] = useState(false);
   const [fontScale, setFontScale] = useState(1);
+  const storyScrollRef = useRef<HTMLDivElement | null>(null);
+  const [hasMoreBelow, setHasMoreBelow] = useState(false);
+
+  const updateStoryScrollState = useCallback(() => {
+    const el = storyScrollRef.current;
+    if (!el) return;
+    const remaining = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setHasMoreBelow(remaining > 8);
+  }, []);
+
+  useEffect(() => {
+    const el = storyScrollRef.current;
+    if (!el) return;
+    updateStoryScrollState();
+    el.addEventListener('scroll', updateStoryScrollState, { passive: true });
+    const ro = new ResizeObserver(updateStoryScrollState);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener('scroll', updateStoryScrollState);
+      ro.disconnect();
+    };
+  }, [updateStoryScrollState, selectedStory, recordingStep, fontScale, hasStarted]);
 
   useEffect(() => {
     const isReadingScreen = !!selectedStory && hasStarted;
@@ -454,17 +476,42 @@ const App: React.FC = () => {
                         </h3>
                         
                         {recordingStep === 'READING' ? (
-                          <div className="flex-1 overflow-y-auto pr-2 -mr-2">
-                            <p
-                              style={{
-                                fontSize: `clamp(${1 * fontScale}rem, ${2 * fontScale}vw + 0.5rem, ${1.875 * fontScale}rem)`,
-                                lineHeight: 1.6,
-                              }}
-                              className="text-slate-200 font-serif text-justify animate-in fade-in duration-500"
+                          <div className="relative flex-1 min-h-0">
+                            <div
+                              ref={storyScrollRef}
+                              className="h-full overflow-y-auto pr-2 -mr-2 no-scrollbar"
                             >
-                              <span className="inline-block w-6 sm:w-10" />
-                              {selectedStory.content}
-                            </p>
+                              <p
+                                style={{
+                                  fontSize: `clamp(${1 * fontScale}rem, ${2 * fontScale}vw + 0.5rem, ${1.875 * fontScale}rem)`,
+                                  lineHeight: 1.6,
+                                }}
+                                className="text-slate-200 font-serif text-justify animate-in fade-in duration-500 pb-16"
+                              >
+                                <span className="inline-block w-6 sm:w-10" />
+                                {selectedStory.content}
+                              </p>
+                            </div>
+                            <div
+                              aria-hidden="true"
+                              className={`pointer-events-none absolute inset-x-0 bottom-0 h-32 transition-opacity duration-300 ${hasMoreBelow ? 'opacity-100' : 'opacity-0'}`}
+                              style={{
+                                background: 'linear-gradient(to top, rgba(0,0,0,0.34) 0%, rgba(0,0,0,0.26) 30%, rgba(0,0,0,0.16) 60%, rgba(0,0,0,0.06) 85%, rgba(0,0,0,0) 100%)',
+                              }}
+                            />
+                            <button
+                              type="button"
+                              aria-label="Rolar para ver mais texto"
+                              onClick={() => {
+                                const el = storyScrollRef.current;
+                                if (el) el.scrollBy({ top: el.clientHeight * 0.75, behavior: 'smooth' });
+                              }}
+                              className={`absolute left-1/2 -translate-x-1/2 bottom-3 flex items-center justify-center w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-violet-200 hover:text-white hover:bg-white/20 hover:scale-110 active:scale-95 transition-all duration-200 animate-bounce-soft ${hasMoreBelow ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+                                <path d="M6 9l6 6 6-6" />
+                              </svg>
+                            </button>
                           </div>
                         ) : (
                           <div className="space-y-4 sm:space-y-6 animate-in slide-in-from-right duration-500">

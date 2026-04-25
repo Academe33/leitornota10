@@ -47,6 +47,40 @@
         }
         #root { position: relative; z-index: 1; }
 
+        /* ===== Scrollbar totalmente invisível ===== */
+        .no-scrollbar,
+        body.reading-mode .no-scrollbar,
+        body.dark-theme .no-scrollbar {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        .no-scrollbar::-webkit-scrollbar,
+        body.reading-mode .no-scrollbar::-webkit-scrollbar,
+        body.dark-theme .no-scrollbar::-webkit-scrollbar {
+            width: 0 !important;
+            height: 0 !important;
+            display: none !important;
+            background: transparent !important;
+        }
+        .no-scrollbar::-webkit-scrollbar-track,
+        .no-scrollbar::-webkit-scrollbar-thumb,
+        body.reading-mode .no-scrollbar::-webkit-scrollbar-track,
+        body.reading-mode .no-scrollbar::-webkit-scrollbar-thumb,
+        body.dark-theme .no-scrollbar::-webkit-scrollbar-track,
+        body.dark-theme .no-scrollbar::-webkit-scrollbar-thumb {
+            background: transparent !important;
+            display: none !important;
+        }
+
+        /* ===== Animação suave para a seta "há mais texto" ===== */
+        @keyframes bounce-soft {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, 4px); }
+        }
+        .animate-bounce-soft {
+            animation: bounce-soft 1.8s ease-in-out infinite;
+        }
+
         /* ===== Card com textura suave (efeito "papel violeta") ===== */
         .soft-paper-bg {
             position: relative;
