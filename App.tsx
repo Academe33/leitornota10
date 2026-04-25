@@ -58,6 +58,14 @@ const App: React.FC = () => {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('academe-theme') === 'dark';
+    } catch {
+      return false;
+    }
+  });
   const [isMobile, setIsMobile] = useState(false);
   const [fontScale, setFontScale] = useState(1);
 
@@ -72,6 +80,16 @@ const App: React.FC = () => {
       document.body.classList.remove('reading-mode');
     };
   }, [selectedStory, hasStarted]);
+
+  useEffect(() => {
+    if (isDark) {
+      document.body.classList.add('dark-theme');
+      try { localStorage.setItem('academe-theme', 'dark'); } catch { /* ignore */ }
+    } else {
+      document.body.classList.remove('dark-theme');
+      try { localStorage.setItem('academe-theme', 'light'); } catch { /* ignore */ }
+    }
+  }, [isDark]);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -277,9 +295,23 @@ const App: React.FC = () => {
                 <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Sem notificações</span>
               </div>
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#8B5CF6] to-[#6366F1] text-white flex items-center justify-center font-black text-sm shadow-lg shadow-violet-500/30">
-                {firstName.charAt(0).toUpperCase()}
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsDark(v => !v)}
+                aria-label={isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
+                title={isDark ? 'Tema claro' : 'Tema escuro'}
+                className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#8B5CF6] to-[#6366F1] text-white flex items-center justify-center shadow-lg shadow-violet-500/30 hover:scale-105 active:scale-95 transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2"
+              >
+                {isDark ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 drop-shadow-[0_1px_2px_rgba(76,29,149,0.6)]">
+                    <path fillRule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 drop-shadow-[0_1px_2px_rgba(76,29,149,0.6)]">
+                    <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
             </div>
           </header>
         )}
