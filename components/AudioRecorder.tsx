@@ -113,7 +113,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
   };
 
   return (
-    <div className="flex flex-row lg:flex-col items-center justify-start lg:justify-center gap-3 sm:gap-4 lg:gap-0 p-3 sm:p-5 lg:p-8 bg-[#1A1A1A] rounded-2xl sm:rounded-3xl shadow-2xl shadow-violet-900/30 ring-1 ring-violet-500/10 border border-violet-500/20 transition-all hover:border-violet-500/40 w-full">
+    <div className="soft-paper-bg flex flex-row lg:flex-col items-center justify-start lg:justify-center gap-3 sm:gap-4 lg:gap-0 p-3 sm:p-5 lg:p-8 bg-[#1A1A1A] rounded-2xl sm:rounded-3xl shadow-2xl shadow-violet-900/30 ring-1 ring-violet-500/10 border border-violet-500/20 transition-all hover:border-violet-500/40 w-full overflow-hidden">
       <div className="relative group shrink-0 lg:mb-6">
         <button 
           onClick={isRecording ? stopRecording : startRecording}

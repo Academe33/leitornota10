@@ -219,19 +219,19 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-[2rem] p-6 border border-white shadow-sm">
+        <div className="soft-paper-bg overflow-hidden bg-white rounded-[2rem] p-6 border border-white shadow-sm">
           <span className="block text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Total de Testes</span>
           <span className="block text-4xl font-black text-[#8B5CF6] leading-none">{stats.total}</span>
         </div>
-        <div className="bg-white rounded-[2rem] p-6 border border-white shadow-sm">
+        <div className="soft-paper-bg overflow-hidden bg-white rounded-[2rem] p-6 border border-white shadow-sm">
           <span className="block text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Média Geral</span>
           <span className={`block text-4xl font-black leading-none ${scoreColor(stats.avg || undefined)}`}>{stats.avg || '--'}</span>
         </div>
-        <div className="bg-white rounded-[2rem] p-6 border border-white shadow-sm">
+        <div className="soft-paper-bg overflow-hidden bg-white rounded-[2rem] p-6 border border-white shadow-sm">
           <span className="block text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Últimos 7 dias</span>
           <span className="block text-4xl font-black text-[#16A34A] leading-none">{stats.thisWeek}</span>
         </div>
-        <div className="bg-white rounded-[2rem] p-4 border border-white shadow-sm flex flex-col">
+        <div className="soft-paper-bg overflow-hidden bg-white rounded-[2rem] p-4 border border-white shadow-sm flex flex-col">
           <span className="block text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Filtrar por Turno</span>
           <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-2xl flex-grow">
             {([

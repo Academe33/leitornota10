@@ -1,13 +1,11 @@
 import React from 'react';
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-  LabelList,
 } from 'recharts';
 
 export interface EvolutionPoint {
@@ -21,56 +19,53 @@ interface EvolutionCurveChartProps {
   height?: number;
 }
 
-const EvolutionCurveChart: React.FC<EvolutionCurveChartProps> = ({ data, height = 260 }) => {
+const EvolutionCurveChart: React.FC<EvolutionCurveChartProps> = ({ data, height = 240 }) => {
   return (
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 30, right: 20, left: 0, bottom: 10 }}>
-          <CartesianGrid strokeDasharray="4 6" vertical={false} stroke="#EEF2FF" />
+        <AreaChart data={data} margin={{ top: 20, right: 16, left: 16, bottom: 0 }}>
+          <defs>
+            <linearGradient id="evolutionFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.45} />
+              <stop offset="60%" stopColor="#8B5CF6" stopOpacity={0.12} />
+              <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0} />
+            </linearGradient>
+          </defs>
           <XAxis
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#94A3B8', fontSize: 11, fontWeight: 800 }}
-            dy={10}
+            tick={{ fill: '#CBD5E1', fontSize: 10, fontWeight: 800 }}
+            dy={8}
+            interval="preserveStartEnd"
           />
           <YAxis
             domain={[0, 100]}
-            ticks={[0, 25, 50, 75, 100]}
-            axisLine={false}
-            tickLine={false}
-            tick={{ fill: '#CBD5E1', fontSize: 10, fontWeight: 700 }}
-            width={30}
+            hide
           />
           <RechartsTooltip
             contentStyle={{
               borderRadius: '16px',
               border: 'none',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+              boxShadow: '0 10px 30px rgba(139, 92, 246, 0.15)',
               fontSize: 12,
               fontWeight: 700,
+              padding: '8px 12px',
             }}
-            cursor={{ stroke: '#8B5CF6', strokeWidth: 1.5, strokeDasharray: '4 4' }}
+            cursor={{ stroke: '#C4B5FD', strokeWidth: 1.5 }}
             formatter={(value: number) => [`${value} pts`, 'Nota']}
+            labelStyle={{ color: '#8B5CF6', fontWeight: 900, fontSize: 11 }}
           />
-          <Line
+          <Area
             type="monotone"
             dataKey="score"
             stroke="#8B5CF6"
             strokeWidth={3}
-            dot={{ r: 6, fill: '#fff', stroke: '#8B5CF6', strokeWidth: 3 }}
-            activeDot={{ r: 8, fill: '#8B5CF6', stroke: '#fff', strokeWidth: 3 }}
-          >
-            <LabelList
-              dataKey="score"
-              position="top"
-              offset={12}
-              fill="#8B5CF6"
-              fontSize={12}
-              fontWeight={900}
-            />
-          </Line>
-        </LineChart>
+            fill="url(#evolutionFill)"
+            dot={{ r: 4, fill: '#8B5CF6', stroke: '#fff', strokeWidth: 2 }}
+            activeDot={{ r: 7, fill: '#8B5CF6', stroke: '#fff', strokeWidth: 3 }}
+          />
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );
