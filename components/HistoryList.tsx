@@ -10,7 +10,7 @@ interface HistoryListProps {
 type ViewMode = 'ALL' | 'BY_SHIFT' | 'BY_GRADE' | 'BY_CLASSROOM';
 
 const GRADES: Grade[] = ['1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano', '6º Ano', '7º Ano', '8º Ano', '9º Ano'];
-const SHIFTS: Shift[] = ['Manhã', 'Tarde', 'Noite'];
+const SHIFTS: Shift[] = ['Manhã', 'Tarde'];
 
 const hashString = (s: string): number => {
   let h = 0;
@@ -25,7 +25,6 @@ const deriveClassroom = (r: ReadingRecord): string => r.classroom || `Turma ${St
 const SHIFT_STYLES: Record<Shift, { bg: string; text: string; border: string; icon: string; emoji: string }> = {
   'Manhã':  { bg: 'bg-[#FFFBEB]', text: 'text-[#D97706]', border: 'border-[#FEF3C7]', icon: '☀️', emoji: '☀️' },
   'Tarde':  { bg: 'bg-[#FFF7ED]', text: 'text-[#EA580C]', border: 'border-[#FED7AA]', icon: '🌤️', emoji: '🌤️' },
-  'Noite':  { bg: 'bg-[#EEF2FF]', text: 'text-[#4F46E5]', border: 'border-[#E0E7FF]', icon: '🌙', emoji: '🌙' },
 };
 
 const scoreColor = (score?: number): string => {
@@ -39,6 +38,7 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
   const [showConfirm, setShowConfirm] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<ViewMode>('ALL');
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [shiftFilter, setShiftFilter] = React.useState<Shift | 'ALL'>('ALL');
 
   const enrichedRecords = React.useMemo(
     () => records.map(r => ({
@@ -52,14 +52,18 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
 
   const filteredRecords = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return enrichedRecords;
-    return enrichedRecords.filter(r =>
+    let base = enrichedRecords;
+    if (shiftFilter !== 'ALL') {
+      base = base.filter(r => r._shift === shiftFilter);
+    }
+    if (!q) return base;
+    return base.filter(r =>
       r.studentName.toLowerCase().includes(q) ||
       r._grade.toLowerCase().includes(q) ||
       r._shift.toLowerCase().includes(q) ||
       r._classroom.toLowerCase().includes(q)
     );
-  }, [enrichedRecords, searchQuery]);
+  }, [enrichedRecords, searchQuery, shiftFilter]);
 
   const stats = React.useMemo(() => {
     const completed = filteredRecords.filter(r => r.status === 'completed' && r.result);
@@ -69,14 +73,14 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
     const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
     const thisWeek = filteredRecords.filter(r => r.timestamp >= weekAgo).length;
 
-    const byShift: Record<Shift, number> = { 'Manhã': 0, 'Tarde': 0, 'Noite': 0 };
+    const byShift: Record<Shift, number> = { 'Manhã': 0, 'Tarde': 0 };
     filteredRecords.forEach(r => { byShift[r._shift]++; });
 
     return { total: filteredRecords.length, avg, thisWeek, byShift };
   }, [filteredRecords]);
 
   const groupedByShift = React.useMemo(() => {
-    const groups: Record<Shift, typeof filteredRecords> = { 'Manhã': [], 'Tarde': [], 'Noite': [] };
+    const groups: Record<Shift, typeof filteredRecords> = { 'Manhã': [], 'Tarde': [] };
     filteredRecords.forEach(r => { groups[r._shift].push(r); });
     return groups;
   }, [filteredRecords]);
@@ -227,11 +231,29 @@ const HistoryList: React.FC<HistoryListProps> = ({ records, onSelect, onClear })
           <span className="block text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Últimos 7 dias</span>
           <span className="block text-4xl font-black text-[#16A34A] leading-none">{stats.thisWeek}</span>
         </div>
-        <div className="bg-white rounded-[2rem] p-6 border border-white shadow-sm">
-          <span className="block text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Turno Principal</span>
-          <span className="block text-2xl font-black text-slate-800 leading-none">
-            {(Object.entries(stats.byShift) as [Shift, number][]).sort((a, b) => b[1] - a[1])[0][0]} {SHIFT_STYLES[(Object.entries(stats.byShift) as [Shift, number][]).sort((a, b) => b[1] - a[1])[0][0]].emoji}
-          </span>
+        <div className="bg-white rounded-[2rem] p-4 border border-white shadow-sm flex flex-col">
+          <span className="block text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Filtrar por Turno</span>
+          <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-2xl flex-grow">
+            {([
+              { key: 'ALL' as const, label: 'Todos', emoji: '🗂️' },
+              { key: 'Manhã' as const, label: 'Manhã', emoji: '☀️' },
+              { key: 'Tarde' as const, label: 'Tarde', emoji: '🌤️' },
+            ]).map(opt => (
+              <button
+                key={opt.key}
+                onClick={() => setShiftFilter(opt.key)}
+                className={`flex-1 px-2 py-2 text-[10px] font-black uppercase tracking-[0.12em] rounded-xl whitespace-nowrap transition-all ${
+                  shiftFilter === opt.key
+                    ? 'bg-[#8B5CF6] text-white shadow-sm'
+                    : 'text-slate-500 hover:text-[#8B5CF6]'
+                }`}
+                title={opt.label}
+              >
+                <span className="block text-base leading-none mb-0.5">{opt.emoji}</span>
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

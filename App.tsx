@@ -60,23 +60,6 @@ const App: React.FC = () => {
   const [hasStarted, setHasStarted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [fontScale, setFontScale] = useState(1);
-  const [liveTranscript, setLiveTranscript] = useState('');
-
-  const normalizeWord = (w: string) =>
-    w
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]/gi, '');
-
-  const storyWords = React.useMemo(() => {
-    if (!selectedStory) return [] as string[];
-    return selectedStory.content.split(/\s+/);
-  }, [selectedStory]);
-
-  useEffect(() => {
-    setLiveTranscript('');
-  }, [selectedStory, recordingStep]);
 
   useEffect(() => {
     const isReadingScreen = !!selectedStory && hasStarted;
@@ -89,30 +72,6 @@ const App: React.FC = () => {
       document.body.classList.remove('reading-mode');
     };
   }, [selectedStory, hasStarted]);
-
-  const spokenCount = React.useMemo(() => {
-    if (!liveTranscript || storyWords.length === 0) return 0;
-    const spoken = liveTranscript.split(/\s+/).map(normalizeWord).filter(Boolean);
-    let storyIdx = 0;
-    let spokenIdx = 0;
-    while (storyIdx < storyWords.length && spokenIdx < spoken.length) {
-      const target = normalizeWord(storyWords[storyIdx]);
-      if (!target) { storyIdx++; continue; }
-      const current = spoken[spokenIdx];
-      if (current === target) {
-        storyIdx++;
-        spokenIdx++;
-      } else if (
-        spokenIdx + 1 < spoken.length &&
-        normalizeWord(storyWords[storyIdx]) === spoken[spokenIdx + 1]
-      ) {
-        spokenIdx++;
-      } else {
-        storyIdx++;
-      }
-    }
-    return storyIdx;
-  }, [liveTranscript, storyWords]);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -465,26 +424,7 @@ const App: React.FC = () => {
                               className="text-slate-200 font-serif text-justify animate-in fade-in duration-500"
                             >
                               <span className="inline-block w-6 sm:w-10" />
-                              {storyWords.map((word, idx) => {
-                                const isRead = idx < spokenCount;
-                                const isCurrent = idx === spokenCount;
-                                return (
-                                  <React.Fragment key={idx}>
-                                    <span
-                                      className={
-                                        isRead
-                                          ? 'underline decoration-violet-500 decoration-2 underline-offset-4 text-violet-700 transition-colors'
-                                          : isCurrent
-                                            ? 'bg-violet-100 rounded px-0.5 text-violet-900 transition-colors'
-                                            : 'transition-colors'
-                                      }
-                                    >
-                                      {word}
-                                    </span>
-                                    {idx < storyWords.length - 1 ? ' ' : ''}
-                                  </React.Fragment>
-                                );
-                              })}
+                              {selectedStory.content}
                             </p>
                           </div>
                         ) : (
@@ -507,8 +447,6 @@ const App: React.FC = () => {
                           key={recordingStep}
                           onRecordingComplete={handleRecordingComplete} 
                           isProcessing={false}
-                          onRecordingStart={() => { if (recordingStep === 'READING') setLiveTranscript(''); }}
-                          onTranscriptUpdate={(t) => { if (recordingStep === 'READING') setLiveTranscript(t); }}
                         />
                       </div>
                     </div>

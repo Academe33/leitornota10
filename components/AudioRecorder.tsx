@@ -3,101 +3,21 @@ import React, { useState, useRef, useEffect } from 'react';
 interface AudioRecorderProps {
   onRecordingComplete: (blob: Blob) => void;
   isProcessing: boolean;
-  onTranscriptUpdate?: (transcript: string) => void;
   onRecordingStart?: () => void;
 }
 
-type SRResult = {
-  isFinal: boolean;
-  0: { transcript: string };
-};
-type SREvent = { resultIndex: number; results: ArrayLike<SRResult> };
-type SRInstance = {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  onresult: ((e: SREvent) => void) | null;
-  onerror: ((e: unknown) => void) | null;
-  onend: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-};
-
-const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isProcessing, onTranscriptUpdate, onRecordingStart }) => {
+const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isProcessing, onRecordingStart }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const recognitionRef = useRef<SRInstance | null>(null);
-  const finalTranscriptRef = useRef<string>('');
-  const wantTranscribeRef = useRef<boolean>(false);
 
   useEffect(() => {
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
-      if (recognitionRef.current) {
-        try { recognitionRef.current.abort(); } catch { /* ignore */ }
-      }
     };
   }, []);
-
-  const startSpeechRecognition = () => {
-    if (!onTranscriptUpdate) return;
-    const w = window as unknown as {
-      SpeechRecognition?: new () => SRInstance;
-      webkitSpeechRecognition?: new () => SRInstance;
-    };
-    const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
-    if (!SR) {
-      console.warn('SpeechRecognition não suportado neste navegador.');
-      return;
-    }
-    const recognition = new SR();
-    recognition.lang = 'pt-BR';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    finalTranscriptRef.current = '';
-    wantTranscribeRef.current = true;
-
-    recognition.onresult = (event: SREvent) => {
-      let interim = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const res = event.results[i];
-        if (res.isFinal) {
-          finalTranscriptRef.current += ' ' + res[0].transcript;
-        } else {
-          interim += ' ' + res[0].transcript;
-        }
-      }
-      const full = (finalTranscriptRef.current + ' ' + interim).trim();
-      onTranscriptUpdate?.(full);
-    };
-
-    recognition.onerror = () => { /* silencioso */ };
-
-    recognition.onend = () => {
-      if (wantTranscribeRef.current) {
-        try { recognition.start(); } catch { /* ignore */ }
-      }
-    };
-
-    try {
-      recognition.start();
-      recognitionRef.current = recognition;
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const stopSpeechRecognition = () => {
-    wantTranscribeRef.current = false;
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch { /* ignore */ }
-      recognitionRef.current = null;
-    }
-  };
 
   const startRecording = async () => {
     try {
@@ -135,7 +55,6 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
       setIsRecording(true);
       setRecordingTime(0);
       onRecordingStart?.();
-      startSpeechRecognition();
       timerRef.current = window.setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
@@ -159,7 +78,6 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      stopSpeechRecognition();
       if (timerRef.current) window.clearInterval(timerRef.current);
     }
   };
