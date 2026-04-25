@@ -4,14 +4,16 @@ interface AudioRecorderProps {
   onRecordingComplete: (blob: Blob) => void;
   isProcessing: boolean;
   onRecordingStart?: () => void;
+  onRestart?: () => void;
 }
 
-const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isProcessing, onRecordingStart }) => {
+const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isProcessing, onRecordingStart, onRestart }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const isRestartingRef = useRef<boolean>(false);
 
   useEffect(() => {
     return () => {
@@ -46,9 +48,14 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
       };
 
       mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(track => track.stop());
+        if (isRestartingRef.current) {
+          isRestartingRef.current = false;
+          chunksRef.current = [];
+          return;
+        }
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         onRecordingComplete(blob);
-        stream.getTracks().forEach(track => track.stop());
       };
 
       mediaRecorder.start();
@@ -80,6 +87,23 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
       setIsRecording(false);
       if (timerRef.current) window.clearInterval(timerRef.current);
     }
+  };
+
+  const handleRestartClick = () => {
+    isRestartingRef.current = true;
+    if (mediaRecorderRef.current && isRecording) {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch { /* ignore */ }
+    }
+    chunksRef.current = [];
+    setIsRecording(false);
+    setRecordingTime(0);
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    onRestart?.();
   };
 
   const formatTime = (seconds: number) => {
@@ -139,6 +163,18 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, isPr
           </div>
         )}
       </div>
+
+      {isRecording && onRestart && (
+        <button
+          onClick={handleRestartClick}
+          aria-label="Começar do zero"
+          className="shrink-0 ml-auto lg:ml-0 lg:mt-5 flex items-center gap-2 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] px-5 py-3 sm:px-6 sm:py-3.5 rounded-full shadow-[0_6px_0_#6D28D9] hover:shadow-[0_4px_0_#6D28D9] hover:translate-y-[2px] active:translate-y-[6px] active:shadow-[0_0_0_#6D28D9] transition-all duration-150"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          <span className="hidden sm:inline">Começar do Zero</span>
+          <span className="sm:hidden">Zerar</span>
+        </button>
+      )}
     </div>
   );
 };

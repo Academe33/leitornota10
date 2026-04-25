@@ -243,6 +243,14 @@ const App: React.FC = () => {
     setSelectedStory(null);
   };
 
+  const handleRestart = () => {
+    setStatus(AppStatus.IDLE);
+    setRecordingStep('READING');
+    setReadingBlob(null);
+    setShowPrivacyPopup(false);
+    setLastRecordId(null);
+  };
+
   const firstName = (studentName.trim().split(' ')[0]) || 'Aluno';
 
   return (
@@ -255,7 +263,6 @@ const App: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="bg-white px-5 py-2.5 rounded-full shadow-sm flex items-center gap-3 border border-slate-100">
                 <img src={Logo} alt="Academe" className="h-6 object-contain" />
-                <span className="bg-[#8B5CF6] text-white px-3 py-0.5 rounded-full text-xs font-black tracking-wider">KIDS</span>
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg font-black text-slate-900">Olá, {firstName}! <span className="inline-block">👋</span></h1>
@@ -447,6 +454,7 @@ const App: React.FC = () => {
                           key={recordingStep}
                           onRecordingComplete={handleRecordingComplete} 
                           isProcessing={false}
+                          onRestart={handleRestart}
                         />
                       </div>
                     </div>
