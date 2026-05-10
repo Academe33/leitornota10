@@ -3,12 +3,323 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#8B5CF6">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Leitor Nota10">
+    <link rel="manifest" href="/assets/manifest-CXy5J2gR.json">
+    <link rel="apple-touch-icon" href="/assets/logo-CmfXcnGQ.png">
     <title>Leitor Mestre | Analisador de Leitura com IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+            position: relative;
+        }
+
+        /* ===== Padrão global (tema claro) — paz e conforto ===== */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                radial-gradient(circle at 15% 20%, rgba(139, 92, 246, 0.08), transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(196, 181, 253, 0.10), transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(233, 213, 255, 0.06), transparent 60%);
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.55;
+            background-image: radial-gradient(rgba(139, 92, 246, 0.12) 1px, transparent 1px);
+            background-size: 28px 28px;
+            background-position: 0 0;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.35));
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.35));
+        }
+        #root { position: relative; z-index: 1; }
+
+        /* ===== Scrollbar totalmente invisível ===== */
+        .no-scrollbar,
+        body.reading-mode .no-scrollbar,
+        body.dark-theme .no-scrollbar {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        .no-scrollbar::-webkit-scrollbar,
+        body.reading-mode .no-scrollbar::-webkit-scrollbar,
+        body.dark-theme .no-scrollbar::-webkit-scrollbar {
+            width: 0 !important;
+            height: 0 !important;
+            display: none !important;
+            background: transparent !important;
+        }
+        .no-scrollbar::-webkit-scrollbar-track,
+        .no-scrollbar::-webkit-scrollbar-thumb,
+        body.reading-mode .no-scrollbar::-webkit-scrollbar-track,
+        body.reading-mode .no-scrollbar::-webkit-scrollbar-thumb,
+        body.dark-theme .no-scrollbar::-webkit-scrollbar-track,
+        body.dark-theme .no-scrollbar::-webkit-scrollbar-thumb {
+            background: transparent !important;
+            display: none !important;
+        }
+
+        /* ===== Animação suave para a seta "há mais texto" ===== */
+        @keyframes bounce-soft {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, 4px); }
+        }
+        .animate-bounce-soft {
+            animation: bounce-soft 1.8s ease-in-out infinite;
+        }
+
+        /* ===== Card com textura suave (efeito "papel violeta") ===== */
+        .soft-paper-bg {
+            position: relative;
+            background-image:
+                radial-gradient(circle at 20% 10%, rgba(139, 92, 246, 0.05), transparent 40%),
+                radial-gradient(circle at 80% 90%, rgba(196, 181, 253, 0.08), transparent 45%);
+        }
+        .soft-paper-bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: inherit;
+            opacity: 0.35;
+            background-image: radial-gradient(rgba(139, 92, 246, 0.18) 0.8px, transparent 0.8px);
+            background-size: 22px 22px;
+            mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.85), transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.85), transparent 75%);
+        }
+        .soft-paper-bg > * { position: relative; z-index: 1; }
+
+        /* ===== Dark theme =====
+           Ativado por body.reading-mode (tela de leitura) OU body.dark-theme (alternância global pelo botão). */
+        body.reading-mode,
+        body.dark-theme { background-color: #111111 !important; color: #E5E7EB; }
+
+        /* Padrão calmo no fundo escuro — estrelas violeta bem suaves */
+        body.reading-mode::before,
+        body.dark-theme::before {
+            background-image:
+                radial-gradient(circle at 20% 15%, rgba(139, 92, 246, 0.18), transparent 50%),
+                radial-gradient(circle at 80% 85%, rgba(124, 58, 237, 0.14), transparent 55%),
+                radial-gradient(circle at 50% 50%, rgba(76, 29, 149, 0.10), transparent 70%);
+        }
+        body.reading-mode::after,
+        body.dark-theme::after {
+            opacity: 0.35;
+            background-image: radial-gradient(rgba(167, 139, 250, 0.25) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
+        }
+
+        /* Variante dark do papel suave */
+        body.reading-mode .soft-paper-bg,
+        body.dark-theme .soft-paper-bg {
+            background-image:
+                radial-gradient(circle at 20% 10%, rgba(139, 92, 246, 0.12), transparent 45%),
+                radial-gradient(circle at 80% 90%, rgba(124, 58, 237, 0.10), transparent 50%);
+        }
+        body.reading-mode .soft-paper-bg::before,
+        body.dark-theme .soft-paper-bg::before {
+            opacity: 0.28;
+            background-image: radial-gradient(rgba(167, 139, 250, 0.3) 0.9px, transparent 0.9px);
+        }
+
+        /* -------- Fundos claros -> fundo principal escuro -------- */
+        body.reading-mode .bg-slate-50,
+        body.reading-mode .bg-gray-50,
+        body.reading-mode .bg-\[\#F8FAFC\],
+        body.reading-mode .bg-\[\#F5F3FF\],
+        body.reading-mode .bg-\[\#F0FDF4\],
+        body.reading-mode .bg-\[\#FFFBEB\],
+        body.reading-mode .bg-\[\#FEF2F2\],
+        body.dark-theme .bg-slate-50,
+        body.dark-theme .bg-gray-50,
+        body.dark-theme .bg-\[\#F8FAFC\],
+        body.dark-theme .bg-\[\#F5F3FF\],
+        body.dark-theme .bg-\[\#F0FDF4\],
+        body.dark-theme .bg-\[\#FFFBEB\],
+        body.dark-theme .bg-\[\#FEF2F2\] { background-color: #111111 !important; }
+
+        /* Cards brancos -> card escuro */
+        body.reading-mode .bg-white,
+        body.dark-theme .bg-white { background-color: #1A1A1A !important; }
+        body.reading-mode .bg-white\/80,
+        body.dark-theme .bg-white\/80 { background-color: rgba(26, 26, 26, 0.8) !important; }
+        body.reading-mode .bg-white\/60,
+        body.dark-theme .bg-white\/60 { background-color: rgba(26, 26, 26, 0.6) !important; }
+        body.reading-mode .bg-white\/50,
+        body.dark-theme .bg-white\/50 { background-color: rgba(26, 26, 26, 0.5) !important; }
+        body.reading-mode .bg-white\/40,
+        body.dark-theme .bg-white\/40 { background-color: rgba(26, 26, 26, 0.4) !important; }
+        body.reading-mode .bg-white\/20,
+        body.dark-theme .bg-white\/20 { background-color: rgba(255, 255, 255, 0.06) !important; }
+        body.reading-mode .bg-white\/10,
+        body.dark-theme .bg-white\/10 { background-color: rgba(255, 255, 255, 0.04) !important; }
+
+        /* Overlays escuros (modais) ajustados */
+        body.reading-mode .bg-slate-900\/50,
+        body.dark-theme .bg-slate-900\/50 { background-color: rgba(0, 0, 0, 0.65) !important; }
+        body.reading-mode .bg-slate-900\/40,
+        body.dark-theme .bg-slate-900\/40 { background-color: rgba(0, 0, 0, 0.55) !important; }
+
+        /* Tons claros secundários */
+        body.reading-mode .bg-slate-100,
+        body.reading-mode .bg-gray-100,
+        body.dark-theme .bg-slate-100,
+        body.dark-theme .bg-gray-100 { background-color: #1F1F1F !important; }
+        body.reading-mode .bg-slate-200,
+        body.reading-mode .bg-gray-200,
+        body.dark-theme .bg-slate-200,
+        body.dark-theme .bg-gray-200 { background-color: #262626 !important; }
+
+        /* Acento violeta suave em dark */
+        body.reading-mode .bg-violet-50,
+        body.dark-theme .bg-violet-50 { background-color: #2A1F3D !important; }
+        body.reading-mode .bg-violet-100,
+        body.dark-theme .bg-violet-100 { background-color: #3B2A57 !important; }
+        body.reading-mode .bg-violet-200,
+        body.dark-theme .bg-violet-200 { background-color: #4B3574 !important; }
+
+        /* Status chips (sucesso/warning/erro) em versões dark */
+        body.reading-mode .bg-\[\#DCFCE7\],
+        body.dark-theme .bg-\[\#DCFCE7\] { background-color: #14532D !important; }
+        body.reading-mode .bg-\[\#FEF3C7\],
+        body.dark-theme .bg-\[\#FEF3C7\] { background-color: #78350F !important; }
+        body.reading-mode .bg-\[\#FEE2E2\],
+        body.dark-theme .bg-\[\#FEE2E2\] { background-color: #7F1D1D !important; }
+
+        /* -------- Texto -------- */
+        body.reading-mode .text-slate-900,
+        body.reading-mode .text-\[\#1E293B\],
+        body.reading-mode .text-gray-900,
+        body.reading-mode .text-black,
+        body.dark-theme .text-slate-900,
+        body.dark-theme .text-\[\#1E293B\],
+        body.dark-theme .text-gray-900,
+        body.dark-theme .text-black { color: #F1F5F9 !important; }
+        body.reading-mode .text-slate-800,
+        body.reading-mode .text-gray-800,
+        body.dark-theme .text-slate-800,
+        body.dark-theme .text-gray-800 { color: #E2E8F0 !important; }
+        body.reading-mode .text-slate-700,
+        body.reading-mode .text-gray-700,
+        body.dark-theme .text-slate-700,
+        body.dark-theme .text-gray-700 { color: #CBD5E1 !important; }
+        body.reading-mode .text-slate-600,
+        body.reading-mode .text-gray-600,
+        body.dark-theme .text-slate-600,
+        body.dark-theme .text-gray-600 { color: #94A3B8 !important; }
+        body.reading-mode .text-slate-500,
+        body.reading-mode .text-gray-500,
+        body.dark-theme .text-slate-500,
+        body.dark-theme .text-gray-500 { color: #94A3B8 !important; }
+        body.reading-mode .text-slate-400,
+        body.reading-mode .text-gray-400,
+        body.dark-theme .text-slate-400,
+        body.dark-theme .text-gray-400 { color: #64748B !important; }
+        body.reading-mode .text-slate-300,
+        body.reading-mode .text-gray-300,
+        body.dark-theme .text-slate-300,
+        body.dark-theme .text-gray-300 { color: #94A3B8 !important; }
+
+        /* -------- Bordas -------- */
+        body.reading-mode .border-white,
+        body.reading-mode .border-slate-100,
+        body.reading-mode .border-slate-200,
+        body.reading-mode .border-gray-100,
+        body.reading-mode .border-gray-200,
+        body.dark-theme .border-white,
+        body.dark-theme .border-slate-100,
+        body.dark-theme .border-slate-200,
+        body.dark-theme .border-gray-100,
+        body.dark-theme .border-gray-200 { border-color: #2A2A2A !important; }
+        body.reading-mode .border-slate-300,
+        body.reading-mode .border-gray-300,
+        body.dark-theme .border-slate-300,
+        body.dark-theme .border-gray-300 { border-color: #3A3A3A !important; }
+        body.reading-mode .border-violet-100,
+        body.reading-mode .border-violet-200,
+        body.reading-mode .border-\[\#DDD6FE\],
+        body.dark-theme .border-violet-100,
+        body.dark-theme .border-violet-200,
+        body.dark-theme .border-\[\#DDD6FE\] { border-color: #4B3574 !important; }
+        body.reading-mode .border-\[\#DCFCE7\],
+        body.dark-theme .border-\[\#DCFCE7\] { border-color: #14532D !important; }
+        body.reading-mode .border-\[\#FEF3C7\],
+        body.dark-theme .border-\[\#FEF3C7\] { border-color: #78350F !important; }
+        body.reading-mode .border-\[\#FEE2E2\],
+        body.dark-theme .border-\[\#FEE2E2\] { border-color: #7F1D1D !important; }
+        body.reading-mode .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+        body.reading-mode .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+        body.dark-theme .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+        body.dark-theme .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #2A2A2A !important; }
+
+        /* -------- Destaque de leitura (palavra atual) -------- */
+        body.reading-mode .text-violet-900,
+        body.dark-theme .text-violet-900 { color: #EDE9FE !important; }
+        body.reading-mode .text-violet-700,
+        body.dark-theme .text-violet-700 { color: #C4B5FD !important; }
+        body.reading-mode .text-violet-600,
+        body.dark-theme .text-violet-600 { color: #A78BFA !important; }
+
+        /* Cores de texto arbitrárias em status (mantêm identidade) */
+        body.reading-mode .text-\[\#16A34A\],
+        body.dark-theme .text-\[\#16A34A\] { color: #4ADE80 !important; }
+        body.reading-mode .text-\[\#D97706\],
+        body.dark-theme .text-\[\#D97706\] { color: #FBBF24 !important; }
+        body.reading-mode .text-\[\#EF4444\],
+        body.dark-theme .text-\[\#EF4444\] { color: #F87171 !important; }
+        body.reading-mode .text-\[\#DDD6FE\],
+        body.dark-theme .text-\[\#DDD6FE\] { color: #C4B5FD !important; }
+
+        /* -------- Sombras em dark -------- */
+        body.reading-mode .shadow-sm,
+        body.dark-theme .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.4) !important; }
+        body.reading-mode .shadow,
+        body.reading-mode .shadow-md,
+        body.dark-theme .shadow,
+        body.dark-theme .shadow-md { box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important; }
+        body.reading-mode .shadow-lg,
+        body.reading-mode .shadow-xl,
+        body.reading-mode .shadow-2xl,
+        body.dark-theme .shadow-lg,
+        body.dark-theme .shadow-xl,
+        body.dark-theme .shadow-2xl { box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; }
+
+        /* -------- Inputs -------- */
+        body.reading-mode input,
+        body.reading-mode textarea,
+        body.reading-mode select,
+        body.dark-theme input,
+        body.dark-theme textarea,
+        body.dark-theme select { background-color: #1A1A1A; color: #E5E7EB; border-color: #2A2A2A; }
+        body.reading-mode input::placeholder,
+        body.reading-mode textarea::placeholder,
+        body.dark-theme input::placeholder,
+        body.dark-theme textarea::placeholder { color: #64748B; }
+
+        /* -------- Scrollbar dark -------- */
+        body.reading-mode ::-webkit-scrollbar,
+        body.dark-theme ::-webkit-scrollbar { width: 10px; height: 10px; }
+        body.reading-mode ::-webkit-scrollbar-track,
+        body.dark-theme ::-webkit-scrollbar-track { background: #111111; }
+        body.reading-mode ::-webkit-scrollbar-thumb,
+        body.dark-theme ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 8px; }
+        body.reading-mode ::-webkit-scrollbar-thumb:hover,
+        body.dark-theme ::-webkit-scrollbar-thumb:hover { background: #3A3A3A; }
     </style>
 
 <link rel="stylesheet" href="/index.css">
@@ -23,7 +334,7 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/index-B6R0vuL6.js"></script>
+  <script type="module" crossorigin src="/assets/index-_aNxOtxh.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-900">
     <div id="root"></div>
