@@ -201,8 +201,13 @@ app.post("/api/auth/login", (req, res) => {
     return res.status(400).json({ error: "Credenciais inválidas." });
   }
 
-  const isValidUser = safeEqualString(identifier, AUTH_USER);
-  const isValidPassword = safeEqualString(password, AUTH_PASSWORD);
+  const normalizedIdentifier = identifier.trim().toLowerCase();
+  const normalizedAuthUser = AUTH_USER.trim().toLowerCase();
+  const normalizedPassword = password.trim();
+  const normalizedAuthPassword = AUTH_PASSWORD.trim();
+
+  const isValidUser = safeEqualString(normalizedIdentifier, normalizedAuthUser);
+  const isValidPassword = safeEqualString(normalizedPassword, normalizedAuthPassword);
   const isValid = isValidUser && isValidPassword;
 
   if (!isValid) {
@@ -211,7 +216,7 @@ app.post("/api/auth/login", (req, res) => {
   }
 
   clearAttempts(key);
-  const token = createSessionToken(identifier);
+  const token = createSessionToken(normalizedIdentifier);
   const secure = process.env.NODE_ENV === "production";
 
   res.setHeader(
