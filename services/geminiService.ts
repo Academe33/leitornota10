@@ -9,6 +9,7 @@ export const analyzeReadingAudio = async (
 ): Promise<AnalysisResult> => {
   const response = await fetch("/api/analyze", {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
