@@ -44,12 +44,6 @@ const STORAGE_KEY = 'academe_kids_v1_storage';
 type RecordingStep = 'READING' | 'INTERPRETATION';
 
 const App: React.FC = () => {
-  const [authLoading, setAuthLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginId, setLoginId] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
   const [activeView, setActiveView] = useState<ActiveView>('MANAGER');
   const [records, setRecords] = useState<ReadingRecord[]>([]);
@@ -76,73 +70,6 @@ const App: React.FC = () => {
   const [fontScale, setFontScale] = useState(1);
   const storyScrollRef = useRef<HTMLDivElement | null>(null);
   const [hasMoreBelow, setHasMoreBelow] = useState(false);
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const response = await fetch('/api/auth/session', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        setIsAuthenticated(response.ok);
-      } catch {
-        setIsAuthenticated(false);
-      } finally {
-        setAuthLoading(false);
-      }
-    };
-
-    checkSession();
-  }, []);
-
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoginError('');
-    setIsLoggingIn(true);
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          identifier: loginId.trim(),
-          password: loginPassword,
-        }),
-      });
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        setLoginError(typeof data?.error === 'string' ? data.error : 'Falha no login.');
-        return;
-      }
-
-      setIsAuthenticated(true);
-      setLoginPassword('');
-    } catch {
-      setLoginError('Erro de conexão. Tente novamente.');
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch {
-      // ignora e segue com logout local
-    }
-
-    setIsAuthenticated(false);
-    setLoginPassword('');
-    setLoginError('');
-  };
 
   const updateStoryScrollState = useCallback(() => {
     const el = storyScrollRef.current;
@@ -366,79 +293,6 @@ const App: React.FC = () => {
 
   const firstName = (studentName.trim().split(' ')[0]) || 'Aluno';
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white px-6">
-        <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 text-center shadow-2xl">
-          <h1 className="text-2xl font-black mb-2">Verificando Acesso</h1>
-          <p className="text-slate-300">Validando sessão segura...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-black px-6">
-        <form
-          onSubmit={handleLogin}
-          className="w-full max-w-md rounded-3xl border border-violet-900/40 bg-slate-900/90 p-8 shadow-2xl"
-        >
-          <h1 className="text-2xl font-black text-white mb-2">Acesso Protegido</h1>
-          <p className="text-slate-300 text-sm mb-6">
-            Entre com seu ID e senha para continuar.
-          </p>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">
-                ID
-              </label>
-              <input
-                type="email"
-                autoComplete="username"
-                value={loginId}
-                onChange={(e) => setLoginId(e.target.value)}
-                required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-violet-500"
-                placeholder="seu-id@dominio.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">
-                Senha
-              </label>
-              <input
-                type="password"
-                autoComplete="current-password"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-violet-500"
-                placeholder="Digite sua senha"
-              />
-            </div>
-          </div>
-
-          {loginError && (
-            <div className="mt-4 rounded-xl bg-rose-500/15 border border-rose-400/30 px-4 py-3 text-sm text-rose-200">
-              {loginError}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoggingIn}
-            className="w-full mt-6 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-black py-3 transition-colors"
-          >
-            {isLoggingIn ? 'Entrando...' : 'Entrar'}
-          </button>
-        </form>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex bg-[#F8FAFC] font-sans text-slate-900">
       {!isStandalone && <Sidebar activeView={activeView} onChangeView={handleChangeView} />}
@@ -459,13 +313,6 @@ const App: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="h-11 px-4 rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 transition-colors"
-              >
-                Sair
-              </button>
               <div className="hidden lg:flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
                 <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Sem notificações</span>
