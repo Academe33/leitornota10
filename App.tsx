@@ -253,7 +253,8 @@ const App: React.FC = () => {
       } catch (err) {
         console.error("Erro final após tentativas:", err);
         setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: 'error' } : r));
-        alert("Ops! Ocorreu um erro ao processar sua leitura após várias tentativas. Por favor, tente gravar novamente.");
+        const message = err instanceof Error ? err.message : "Ocorreu um erro ao processar sua leitura.";
+        alert(`Ops! ${message}`);
       }
       
       // Resetar estados

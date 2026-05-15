@@ -21,14 +21,18 @@ export const analyzeReadingAudio = async (
   });
 
   if (!response.ok) {
-    let message = "Falha ao analisar áudio.";
+    let message = `Falha ao analisar áudio (${response.status}).`;
+    const responseText = await response.text();
+
     try {
-      const errorBody = await response.json();
+      const errorBody = JSON.parse(responseText);
       if (typeof errorBody?.error === "string") {
         message = errorBody.error;
       }
     } catch {
-      // ignora erro de parse para manter mensagem padrão
+      if (responseText) {
+        message = responseText;
+      }
     }
     throw new Error(message);
   }
