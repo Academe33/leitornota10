@@ -82,7 +82,7 @@ export const analyzeReadingPayload = async (payload) => {
   } = validateAnalyzePayload(payload);
 
   const ai = getAiClient();
-  const model = "gemini-3-pro-preview";
+  const model = process.env.GEMINI_MODEL || "gemini-3.1-pro-preview";
   const parts = [{ inlineData: { data: readingAudioBase64, mimeType } }];
 
   if (interpretationAudioBase64) {
